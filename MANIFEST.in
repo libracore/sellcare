@@ -1,0 +1,18 @@
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include sellcare *.css
+recursive-include sellcare *.csv
+recursive-include sellcare *.html
+recursive-include sellcare *.ico
+recursive-include sellcare *.js
+recursive-include sellcare *.json
+recursive-include sellcare *.md
+recursive-include sellcare *.png
+recursive-include sellcare *.py
+recursive-include sellcare *.svg
+recursive-include sellcare *.txt
+recursive-exclude sellcare *.pyc
