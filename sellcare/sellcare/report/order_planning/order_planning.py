@@ -29,7 +29,7 @@ def get_columns():
 @frappe.whitelist()
 def get_planning_data(filters, only_reorder=0):
     conditions = []
-    if only_reorder == 1:
+    if int(only_reorder) == 1:
         conditions.append("`tabBin`.`projected_qty` < 0")
     if type(filters) is str:
         filters = ast.literal_eval(filters)
