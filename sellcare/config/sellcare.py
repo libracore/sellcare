@@ -20,5 +20,29 @@ def get_data():
                        "description": _("Customer Visit Report")
                    }
             ]
+        },
+        {
+            "label": _("Procurement"),
+            "icon": "octicon octicon-organization",
+            "items": [
+                   {
+                        "type": "report",
+                        "name": "Order Planning",
+                        "doctype": "Item",
+                        "is_query_report": True
+                   },
+                   {
+                       "type": "doctype",
+                       "name": "Purchase Order",
+                       "label": _("Purchase Order"),
+                       "description": _("Purchase Order")
+                   },
+                   {
+                       "type": "doctype",
+                       "name": "Sales Order",
+                       "label": _("Sales Order"),
+                       "description": _("Sales Order")
+                   }
+            ]
         }
 ]
