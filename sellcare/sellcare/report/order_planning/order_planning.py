@@ -61,7 +61,7 @@ def get_planning_data(filters, only_reorder=0):
       LEFT JOIN `tabItem Default` ON 
         (`tabItem Default`.`parenttype` = 'Item' AND `tabItem Default`.`parent` = `tabBin`.`item_code`)
       {conditions} 
-      ORDER BY `tabBin`.`item_code`, `tabBin`.`warehouse`
+      ORDER BY `tabBin`.`projected_qty` ASC
       """.format(conditions=" WHERE " + " AND ".join(conditions) if conditions else "")
 
     data = frappe.db.sql(sql_query, as_dict=1)
