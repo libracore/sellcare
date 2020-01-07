@@ -18,19 +18,22 @@ def get_columns():
         {"label": _("Item Code"), "fieldname": "item_code", "fieldtype": "Link", "options": "Item", "width": 140},
         {"label": _("Item Name"), "fieldname": "item_name", "width": 100},
         {"label": _("Item Group"), "fieldname": "item_group", "fieldtype": "Link", "options": "Item Group", "width": 100},
+        {"label": _("Gebindegrösse"), "fieldname": "gebindegroesse", "width": 100},
         {"label": _("Default Supplier"), "fieldname": "default_supplier", "fieldtype": "Link", "options": "Supplier", "width": 140},
         {"label": _("Warehouse"), "fieldname": "warehouse", "fieldtype": "Link", "options": "Warehouse", "width": 120},
         {"label": _("Actual Qty"), "fieldname": "actual_qty", "fieldtype": "Float", "width": 100, "convertible": "qty"},
         {"label": _("Reserved Qty"), "fieldname": "reserved_qty", "fieldtype": "Float", "width": 100, "convertible": "qty"},
         {"label": _("Ordered Qty"), "fieldname": "ordered_qty", "fieldtype": "Float", "width": 100, "convertible": "qty"},
         {"label": _("Projected Qty"), "fieldname": "projected_qty", "fieldtype": "Float", "width": 100, "convertible": "qty"},
+        {"label": _("Safety Stock"), "fieldname": "safety_stock", "fieldtype": "Float", "width": 100, "convertible": "qty"},
+        {"label": _("Projected Safety Qty"), "fieldname": "projected_safety_qty", "fieldtype": "Float", "width": 100, "convertible": "qty"},
     ]
 
 @frappe.whitelist()
 def get_planning_data(filters, only_reorder=0):
     conditions = []
     if int(only_reorder) == 1:
-        conditions.append("`tabBin`.`projected_qty` < 0")
+        conditions.append("(`tabBin`.`projected_qty` - `tabItem`.`safety_stock`) < 0")
     if type(filters) is str:
         filters = ast.literal_eval(filters)
         try:
@@ -50,12 +53,15 @@ def get_planning_data(filters, only_reorder=0):
         `tabBin`.`item_code` AS `item_code`, 
         `tabItem`.`item_name` AS `item_name`, 
         `tabItem`.`item_group` AS `item_group`,
+        `tabItem`.`gebindegroesse` AS `gebindegroesse`,
         `tabItem Default`.`default_supplier` AS `default_supplier`,
         `tabBin`.`warehouse` AS `warehouse`, 
         `tabBin`.`actual_qty` AS `actual_qty`, 
         `tabBin`.`reserved_qty` AS `reserved_qty`,
         `tabBin`.`ordered_qty` AS `ordered_qty`,
-        `tabBin`.`projected_qty` AS `projected_qty`
+        `tabBin`.`projected_qty` AS `projected_qty`,
+        `tabItem`.`safety_stock` AS `safety_stock`,
+        (`tabBin`.`projected_qty` - `tabItem`.`safety_stock`) AS `projected_safety_qty`
       FROM `tabBin`
       LEFT JOIN `tabItem` ON `tabItem`.`name` = `tabBin`.`item_code`
       LEFT JOIN `tabItem Default` ON 
