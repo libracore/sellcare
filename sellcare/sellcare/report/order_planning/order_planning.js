@@ -4,12 +4,6 @@
 
 frappe.query_reports["Order Planning"] = {
 	"filters": [
-		{
-			"fieldname":"warehouse",
-			"label": __("Warehouse"),
-			"fieldtype": "Link",
-			"options": "Warehouse"
-		},
         {
 			"fieldname":"supplier",
 			"label": __("Supplier"),
