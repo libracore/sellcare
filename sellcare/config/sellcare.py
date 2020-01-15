@@ -42,7 +42,13 @@ def get_data():
                        "name": "Sales Order",
                        "label": _("Sales Order"),
                        "description": _("Sales Order")
-                   }
+                   },
+                   {
+                        "type": "report",
+                        "name": "Dispo-Report",
+                        "doctype": "Sales Order",
+                        "is_query_report": True
+                   },
             ]
         }
 ]
