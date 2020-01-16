@@ -49,6 +49,12 @@ def get_data():
                         "doctype": "Sales Order",
                         "is_query_report": True
                    },
+                   {
+                        "type": "report",
+                        "name": "Auswertung DB1",
+                        "doctype": "Sales Invoice",
+                        "is_query_report": True
+                   }
             ]
         }
 ]

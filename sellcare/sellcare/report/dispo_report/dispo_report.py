@@ -26,8 +26,6 @@ def get_columns():
     ]
     
 def get_data(filters):
-    conditions = []
-
     if not filters.item_code:
         filters.item_code = "%"
     if not filters.item_name:
@@ -64,7 +62,7 @@ def get_data(filters):
          AND `tabSales Order Item`.`item_name` LIKE '{item_name}'
         ORDER BY `tabSales Order`.`transaction_date` ASC
       """.format(item_code=filters.item_code, item_name=filters.item_name)
-    #frappe.throw(sql_query)
+
     data = frappe.db.sql(sql_query, as_dict=1)
 
     return data

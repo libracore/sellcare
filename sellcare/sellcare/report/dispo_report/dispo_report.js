@@ -1,4 +1,4 @@
-// Copyright (c) 2016, libracore and contributors
+// Copyright (c) 2019-2020, libracore and contributors
 // For license information, please see license.txt
 /* eslint-disable */
 
