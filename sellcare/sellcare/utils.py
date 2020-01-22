@@ -32,3 +32,76 @@ def get_batch_info(item_code):
     
     data = frappe.db.sql(sql_query, as_dict=1)
     return data
+
+""" This function allows to automatically create pricing rules (e.g. for staggered pricing) from Quotations """
+@frappe.whitelist()
+def create_pricing_rules_from_qtn(quotation):
+    # get original document
+    qtn = frappe.get_doc("Quotation", quotation)
+    customer = qtn.party_name
+    if customer:
+        # loop through items
+        for item in qtn.items:
+            # check if there is already a matching pricing rule
+            matching_rules = get_matching_pricing_rules(customer, item.item_code, item.qty)
+            if matching_rules:
+                # update rule
+                rule = frappe.get_doc("Pricing Rule", matching_rules[0]['name'])
+                rule.rate = item.rate
+                rule.priority = find_priority(customer, item.item_code, int(item.qty))
+                rule.save()
+                frappe.db.commit()
+            else:
+                # create rule
+                prio = find_priority(customer, item.item_code, int(item.qty))
+                rule = frappe.get_doc({
+                    'doctype': 'Pricing Rule',
+                    'apply_on': 'Item Code',
+                    'items': [{'item_code': item.item_code}],
+                    'selling': 1,
+                    'applicable_for': 'Customer',
+                    'customer': customer,
+                    'min_qty': item.qty,
+                    'rate_or_discount': 'Rate',
+                    'rate': item.rate,
+                    'priority': prio,
+                    'title': "{0} {1} {2}x".format(customer, item.item_code, item.qty)
+                })
+                rule.insert()
+                frappe.db.commit()
+    return
+            
+def get_matching_pricing_rules(customer, item_code, qty):
+    sql_query = """SELECT 
+          `tabPricing Rule`.`name`,
+          `tabPricing Rule`.`customer`,
+          `tabPricing Rule`.`min_qty`,
+          `tabPricing Rule`.`priority`,
+          `tabPricing Rule`.`rate`,
+          `tabPricing Rule Item Code`.`item_code`
+        FROM `tabPricing Rule Item Code`
+        LEFT JOIN `tabPricing Rule` ON `tabPricing Rule`.`name` = `tabPricing Rule Item Code`.`parent`
+        WHERE 
+          `tabPricing Rule Item Code`.`item_code` = '{item_code}'
+          AND `tabPricing Rule`.`customer` = '{customer}'
+          AND `tabPricing Rule`.`min_qty` = {qty};""".format(item_code=item_code, qty=qty, customer=customer)
+    data = frappe.db.sql(sql_query, as_dict=1)
+    return data
+
+def find_priority(customer, item_code, qty):
+    sql_query = """SELECT MAX(`tabPricing Rule`.`priority`) AS `max`
+        FROM `tabPricing Rule Item Code`
+        LEFT JOIN `tabPricing Rule` ON `tabPricing Rule`.`name` = `tabPricing Rule Item Code`.`parent`
+        WHERE 
+          `tabPricing Rule Item Code`.`item_code` = '{item_code}'
+          AND `tabPricing Rule`.`customer` = '{customer}'
+          AND `tabPricing Rule`.`min_qty` < {qty};""".format(item_code=item_code, qty=qty, customer=customer)
+    data = frappe.db.sql(sql_query, as_dict=1)
+    if data and data[0]['max']:
+        if int(data[0]['max']) > 19:
+            prio = 20
+        else:
+            prio = int(data[0]['max']) + 1
+    else:
+        prio = 1
+    return prio
