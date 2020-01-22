@@ -132,5 +132,5 @@ doctype_js = {
 
 # hook for migrate cleanup tasks
 after_migrate = [
-    'sellcare.updater.cleanup_languages'
+    'sellcare.sellcare.updater.cleanup_languages'
 ]
