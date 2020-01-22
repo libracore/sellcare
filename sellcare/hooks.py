@@ -130,3 +130,7 @@ doctype_js = {
 # 	"Task": "sellcare.task.get_dashboard_data"
 # }
 
+# hook for migrate cleanup tasks
+after_migrate = [
+    'sellcare.updater.cleanup_languages'
+]

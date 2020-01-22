@@ -65,7 +65,7 @@ def create_pricing_rules_from_qtn(quotation):
                     'rate_or_discount': 'Rate',
                     'rate': item.rate,
                     'priority': prio,
-                    'title': "{0} {1} {2}x".format(customer, item.item_code, item.qty)
+                    'title': "{0} {1} {2}kg".format(customer, item.item_code, item.qty)
                 })
                 rule.insert()
                 frappe.db.commit()
