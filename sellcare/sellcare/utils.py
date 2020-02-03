@@ -24,7 +24,7 @@ def check_so_margin(sales_order):
 @frappe.whitelist()
 def get_batch_info(item_code):
     sql_query = """SELECT `item_code`, `batch_no`, `qty`, `valuation_rate`
-        FROM (SELECT `item_code`, `batch_no`, SUM(`actual_qty`) AS `qty`
+        FROM (SELECT `item_code`, `batch_no`, SUM(`actual_qty`) AS `qty`, AVG(`valuation_rate`) AS `valuation_rate`
         FROM `tabStock Ledger Entry`
         WHERE `item_code` = '{item_code}'
         GROUP BY `batch_no`) AS `batches`
