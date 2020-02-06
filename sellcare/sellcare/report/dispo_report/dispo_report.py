@@ -14,11 +14,11 @@ def execute(filters=None):
     
 def get_columns():
     return [
+        {"label": _("Delivery Date"), "fieldname": "delivery_date", "fieldtype": "Date", "width": 120},
         {"label": _("Item Code"), "fieldname": "item_code", "fieldtype": "Link", "options": "Item", "width": 140},
         {"label": _("Item Name"), "fieldname": "item_name", "width": 100},
         {"label": _("Gebindegrösse"), "fieldname": "gebindegroesse", "width": 100},
         {"label": _("Sales Order"), "fieldname": "sales_order", "fieldtype": "Link", "options": "Sales Order", "width": 100},
-        {"label": _("Delivery Date"), "fieldname": "delivery_date", "fieldtype": "Date", "width": 120},
         {"label": _("Customer"), "fieldname": "customer", "fieldtype": "Link", "options": "Customer", "width": 100},
         {"label": _("Customer name"), "fieldname": "customer_name", "fieldtype": "Data", "width": 150},
         {"label": _("Qty ordered"), "fieldname": "qty", "fieldtype": "Float", "width": 100, "convertible": "qty"},
@@ -61,7 +61,7 @@ def get_data(filters):
          AND IFNULL(`tabSales Order Item`.`delivered_qty`,0) < IFNULL(`tabSales Order Item`.qty,0)
          AND `tabSales Order Item`.`item_code` LIKE '{item_code}'
          AND `tabSales Order Item`.`item_name` LIKE '{item_name}'
-        ORDER BY `tabSales Order`.`transaction_date` ASC
+        ORDER BY `tabSales Order`.`delivery_date` ASC, `tabSales Order`.`customer_name` ASC
       """.format(item_code=filters.item_code, item_name=filters.item_name)
 
     data = frappe.db.sql(sql_query, as_dict=1)
