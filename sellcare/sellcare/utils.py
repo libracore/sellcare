@@ -105,3 +105,17 @@ def find_priority(customer, item_code, qty):
     else:
         prio = 1
     return prio
+
+@frappe.whitelist()
+def get_next_item_code():
+    sql_query = """SELECT SUBSTRING(`item_code`, 1, 5) AS `last`
+                   FROM `tabItem`
+                   ORDER BY `item_code` DESC
+                   LIMIT 1;"""
+    try:
+        last_item_code = int(frappe.db.sql(sql_query, as_dict=1)[0]['last'])
+    except:
+        last_item_code = 0
+    next_item_code = "{0}.0".format(last_item_code + 1)
+    return next_item_code
+    
