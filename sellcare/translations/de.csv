@@ -5,3 +5,4 @@ DocType: Purchase Invoice,Inbound charges,Einkaufsspesen
 DocType: Purchase Invoice,Total inbound charges,Gesamte Einkaufsspesen
 DocType: Item,Last inbound charges,Letzte Einkaufsspesen
 DocType: Purchase Invoice,Inbound charges updated,Einkaufsspesen aktualisiert
+DocType: Customer Item Text,Customer Item Text,Kundenartikeltext

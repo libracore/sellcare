@@ -1,4 +1,4 @@
-# Copyright (c) 2019-2020, libracore and contributors
+# Copyright (c) 2013-2020, libracore and contributors
 # For license information, please see license.txt
 
 from __future__ import unicode_literals
@@ -14,6 +14,8 @@ def execute(filters=None):
     
 def get_columns():
     return [
+        {"label": _("Sales Invoice"), "fieldname": "document", "fieldtype": "Link", "options": "Sales Invoice", "width": 100},
+        {"label": _("Delivery date"), "fieldname": "delivery_date", "fieldtype": "Date", "width": 70},
         {"label": _("Item Code"), "fieldname": "item_code", "fieldtype": "Link", "options": "Item", "width": 140},
         {"label": _("Item Name"), "fieldname": "item_name", "fieldtype": "Data",  "width": 100},
         {"label": _("Item Group"), "fieldname": "item_group", "fieldtype": "Link", "options": "Item Group",  "width": 120},
@@ -21,7 +23,8 @@ def get_columns():
         {"label": _("Customer Name"), "fieldname": "customer_name", "fieldtype": "Data", "width": 100},
         {"label": _("Supplier"), "fieldname": "supplier", "fieldtype": "Link", "options": "Supplier", "width": 100},
         {"label": _("Year"), "fieldname": "year", "fieldtype": "Int", "width": 50},
-        {"label": _("Total revenue"), "fieldname": "total_revenue", "fieldtype": "Currency", "width": 100},
+        {"label": _("Rate"), "fieldname": "rate", "fieldtype": "Currency", "width": 100},
+        {"label": _("Net amount"), "fieldname": "net_amount", "fieldtype": "Currency", "width": 100},
         {"label": _("Total transport charges"), "fieldname": "total_transport_charges", "fieldtype": "Currency", "width": 100},
         {"label": _("Total cost"), "fieldname": "total_cost", "fieldtype": "Currency", "width": 100},
         {"label": _("Margin"), "fieldname": "margin", "fieldtype": "Currency", "width": 100},
@@ -42,26 +45,31 @@ def get_data(filters):
         filters.supplier = "%"
         
     sql_query = """SELECT
+         `document`,
+         `delivery_date`, 
          `customer`,
          `customer_name`,
          `year`,
          `item_code`,
          `item_name`,
+         `rate`,
          `item_group`,
          `supplier`,
-         SUM(`net_amount`) AS `total_revenue`,
-         SUM(`transport_charges`)  AS `total_transport_charges`,
-         (SUM(`cost`) - SUM(`inbound_charges`)) AS `total_cost`,
-         (SUM(`net_amount`) - SUM(`transport_charges`) - SUM(`cost`) - SUM(`inbound_charges`)) AS `margin`,
-         ROUND((100 * ((SUM(`net_amount`) - SUM(`transport_charges`) - SUM(`cost`) - SUM(`inbound_charges`))/(SUM(`net_amount`)))), 2) AS `margin_percent`,
-         SUM(`inbound_charges`) AS `inbound_charges`
+         `net_amount`,
+         `transport_charges`,
+         (`cost` - `inbound_charges`) AS `cost`,
+         (`net_amount` - `transport_charges` - `cost` - `inbound_charges`) AS `margin`,
+         ROUND(((100 * (`net_amount` - `transport_charges` - `cost` - `inbound_charges`))/(`net_amount`)), 2) AS `margin_percent`,
+         `inbound_charges`
         FROM (SELECT 
           `tabSales Invoice`.`customer` AS `customer`,
           `tabSales Invoice`.`customer_name` AS `customer_name`,
           `tabSales Invoice`.`name` AS `document`,
+          `tabSales Invoice`.`delivery_date` AS `delivery_date`,
           YEAR(`tabSales Invoice`.`posting_date`) AS `year`,
           `tabSales Invoice Item`.`item_code` AS `item_code`,
           `tabSales Invoice Item`.`item_name` AS `item_name`,
+          `tabSales Invoice Item`.`rate` AS `rate`,
           `tabItem`.`item_group` AS `item_group`,
           `tabItem Supplier`.`supplier` AS `supplier`,
           ROUND(`tabSales Invoice Item`.`base_net_amount`, 2) AS `net_amount`,
@@ -81,7 +89,7 @@ def get_data(filters):
           AND YEAR(`tabSales Invoice`.`posting_date`) LIKE '{year}'
           AND IFNULL(`tabItem Supplier`.`supplier`, "") LIKE '{supplier}'
         ) AS `raw`
-        GROUP BY `key`;
+        ORDER BY `delivery_date` DESC;
       """.format(customer=filters.customer, item_name=filters.item_name, year=filters.year, 
         from_date=filters.from_date, to_date=filters.to_date, supplier=filters.supplier)
 

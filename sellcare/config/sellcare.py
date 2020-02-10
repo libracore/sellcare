@@ -18,6 +18,12 @@ def get_data():
                        "name": "Customer Visit Report",
                        "label": _("Customer Visit Report"),
                        "description": _("Customer Visit Report")
+                   },
+                   {
+                       "type": "doctype",
+                       "name": "Customer Item Text",
+                       "label": _("Customer Item Text"),
+                       "description": _("Customer Item Text")
                    }
             ]
         },
@@ -56,5 +62,35 @@ def get_data():
                         "is_query_report": True
                    }
             ]
-        }
+        },
+        {
+            "label": _("Statistics"),
+            "icon": "octicon octicon-organization",
+            "items": [
+                   {
+                        "type": "report",
+                        "name": "Dispo-Report",
+                        "doctype": "Sales Order",
+                        "is_query_report": True
+                   },
+                   {
+                        "type": "report",
+                        "name": "Auswertung DB1",
+                        "doctype": "Sales Invoice",
+                        "is_query_report": True
+                   },
+                   {
+                        "type": "report",
+                        "name": "Sales Outlook",
+                        "doctype": "Sales Order",
+                        "is_query_report": True
+                   },
+                   {
+                        "type": "report",
+                        "name": "Vorgangsliste",
+                        "doctype": "Sales Invoice",
+                        "is_query_report": True
+                   }
+            ]
+        }        
 ]

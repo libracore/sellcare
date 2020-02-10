@@ -14,15 +14,16 @@ def execute(filters=None):
     
 def get_columns():
     return [
-        {"label": _("Delivery Date"), "fieldname": "delivery_date", "fieldtype": "Date", "width": 120},
         {"label": _("Item Code"), "fieldname": "item_code", "fieldtype": "Link", "options": "Item", "width": 140},
         {"label": _("Item Name"), "fieldname": "item_name", "width": 100},
-        {"label": _("Gebindegrösse"), "fieldname": "gebindegroesse", "width": 100},
-        {"label": _("Sales Order"), "fieldname": "sales_order", "fieldtype": "Link", "options": "Sales Order", "width": 100},
         {"label": _("Customer"), "fieldname": "customer", "fieldtype": "Link", "options": "Customer", "width": 100},
         {"label": _("Customer name"), "fieldname": "customer_name", "fieldtype": "Data", "width": 150},
-        {"label": _("Qty ordered"), "fieldname": "qty", "fieldtype": "Float", "width": 100, "convertible": "qty"},
-        {"label": _("Qty to deliver"), "fieldname": "qty_to_deliver", "fieldtype": "Float", "width": 100, "convertible": "qty"}
+        {"label": _("Qty"), "fieldname": "qty", "fieldtype": "Float", "width": 100},
+        {"label": _("Net amount"), "fieldname": "net_amount", "fieldtype": "Currency", "width": 100},
+        {"label": _("Cost"), "fieldname": "cost", "fieldtype": "Currency", "width": 100},
+        {"label": _("Margin"), "fieldname": "margin", "fieldtype": "Currency", "width": 100},
+        {"label": _("Margin %"), "fieldname": "margin_percent", "fieldtype": "Percent", "width": 70},
+        {"label": _("Supplier"), "fieldname": "supplier", "fieldtype": "Link", "options": "Supplier", "width": 100}
     ]
     
 def get_data(filters):
@@ -32,37 +33,53 @@ def get_data(filters):
         filters.item_name = "%"
     else:
         filters.item_name = "%{0}%".format(filters.item_name)
-    
-    sql_query = """SELECT 
+    if not filters.supplier:
+        filters.supplier = "%"
+    if not filters.customer:
+        filters.customer = "%"
+                    
+    sql_query = """SELECT
+          `item_code`,
+          `item_name`,
+          `gebindegroesse`,
+          `customer`,
+          `customer_name`,
+          SUM(`qty`) AS `qty`,
+          SUM(`base_net_amount`) AS `net_amount`,
+          SUM(`cost`) AS `cost`,
+          (SUM(`base_net_amount`) - SUM(`cost`)) AS `margin`,
+          ROUND((100 * (SUM(`base_net_amount`) - SUM(`cost`)) / SUM(`base_net_amount`)), 2) AS `margin_percent`,
+          `supplier`
+        FROM 
+        (SELECT 
          `tabSales Order`.`name` AS `sales_order`,
          `tabSales Order`.`status` AS `status`,
          `tabSales Order`.`customer` AS `customer`,
          `tabSales Order`.`customer_name` As `customer_name`,
-         `tabSales Order`.`transaction_date` As `date`,
          `tabSales Order Item`.`item_code` AS `item_code`,
          `tabSales Order Item`.`item_name` AS `item_name`,
-         `tabSales Order`.`delivery_date` AS `delivery_date`,
+         `tabSales Order Item`.`base_net_amount` AS `base_net_amount`,
          `tabItem`.`gebindegroesse` AS `gebindegroesse`,
          `tabSales Order Item`.`qty` AS `qty`,
-         `tabSales Order Item`.`delivered_qty` As `delivered_qty`,
-         (`tabSales Order Item`.`qty` - IFNULL(`tabSales Order Item`.`delivered_qty`, 0)) AS `qty_to_deliver`,
-         `tabBin`.`actual_qty` AS `available_qty`,
-         `tabBin`.`projected_qty` AS `projected_qty`,
-         `tabSales Order Item`.`delivery_date` AS `delivery_date`,
-          DATEDIFF(CURDATE(),`tabSales Order Item`.`delivery_date`) AS `delay_days`
+         `tabItem Supplier`.`supplier` AS `supplier`,
+         ROUND((`tabSales Order Item`.`qty` * (`tabItem`.`last_purchase_rate` + `tabItem`.`last_inbound_charges`)), 2) AS `cost`,
+         CONCAT(`tabSales Order Item`.`item_code`, "-", `tabSales Order`.`customer`) AS `key`
         FROM `tabSales Order` 
          JOIN `tabSales Order Item` ON (`tabSales Order Item`.`parent` = `tabSales Order`.`name`)
-         LEFT JOIN `tabBin` ON (`tabBin`.`item_code` = `tabSales Order Item`.`item_code`
-            AND `tabBin`.`warehouse` = `tabSales Order Item`.`warehouse`)
          LEFT JOIN `tabItem` ON (`tabSales Order Item`.`item_code` = `tabItem`.`name`)
+         LEFT JOIN `tabItem Supplier` ON (`tabItem Supplier`.`parent` = `tabSales Order Item`.`item_code` AND `tabItem Supplier`.`parenttype` = "Item")
         WHERE
          `tabSales Order`.`docstatus` = 1
          AND `tabSales Order`.`status` NOT IN ("Stopped", "Closed", "Completed")
          AND IFNULL(`tabSales Order Item`.`delivered_qty`,0) < IFNULL(`tabSales Order Item`.`qty`,0)
          AND `tabSales Order Item`.`item_code` LIKE '{item_code}'
          AND `tabSales Order Item`.`item_name` LIKE '{item_name}'
-        ORDER BY `tabSales Order`.`delivery_date` ASC, `tabSales Order`.`customer_name` ASC
-      """.format(item_code=filters.item_code, item_name=filters.item_name)
+         AND `tabSales Order`.`customer` LIKE '{customer}'
+         AND IFNULL(`tabItem Supplier`.`supplier`, "") LIKE '{supplier}'
+        ) AS `raw`
+        GROUP BY `key`
+      """.format(item_code=filters.item_code, item_name=filters.item_name, 
+                 supplier=filters.supplier, customer=filters.customer)
 
     data = frappe.db.sql(sql_query, as_dict=1)
 
