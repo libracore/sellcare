@@ -35,6 +35,12 @@ frappe.query_reports["Auswertung DB1"] = {
 			"default": frappe.datetime.get_today(),
 			"reqd": 1,
 			"width": "60px"
-        }
+        },
+        {
+			"fieldname":"supplier",
+			"label": __("Supplier"),
+			"fieldtype": "Link",
+			"options": "Supplier"
+		}
 	]
 };
