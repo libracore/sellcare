@@ -28,7 +28,7 @@ def get_batch_info(item_code):
           `batches`.`batch_no`, 
           `batches`.`qty`, 
           `batches`.`valuation_rate`, 
-          (`batches`.`valuation_rate` + `tabtem`.`last_inbound_charges`) AS `full_rate`
+          (`batches`.`valuation_rate` + `tabItem`.`last_inbound_charges`) AS `full_rate`
         FROM (
           SELECT `item_code`, `batch_no`, SUM(`actual_qty`) AS `qty`, AVG(`valuation_rate`) AS `valuation_rate`
           FROM `tabStock Ledger Entry`        
