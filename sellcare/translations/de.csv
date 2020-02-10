@@ -1,3 +1,7 @@
 DocType: Customer Visit Report,Customer Visit Report,Kundenbesuchsbericht
 DocType: Sales Order,Transport Charges,Transportkosten
 Report: Dispo-Report,Dispo-Report,Dispo-Bericht
+DocType: Purchase Invoice,Inbound charges,Einkaufsspesen
+DocType: Purchase Invoice,Total inbound charges,Gesamte Einkaufsspesen
+DocType: Item,Last inbound charges,Letzte Einkaufsspesen
+DocType: Purchase Invoice,Inbound charges updated,Einkaufsspesen aktualisiert

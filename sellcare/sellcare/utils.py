@@ -106,6 +106,7 @@ def find_priority(customer, item_code, qty):
         prio = 1
     return prio
 
+""" This function is used to suggest the next item code when creating a new item """
 @frappe.whitelist()
 def get_next_item_code():
     sql_query = """SELECT SUBSTRING(`item_code`, 1, 5) AS `last`
@@ -118,4 +119,25 @@ def get_next_item_code():
         last_item_code = 0
     next_item_code = "{0}.0".format(last_item_code + 1)
     return next_item_code
-    
+
+""" This function is used to update the item master data with inbound charges (per kg) from purchase invoices """
+@frappe.whitelist()
+def update_inbound_charges(purchase_invoice):
+    pinv = frappe.get_doc("Purchase Invoice", purchase_invoice)
+    if pinv.total_inbound_charges > 0:
+        # update individual inbound charges per item
+        charge_per_unit = round(pinv.total_inbound_charges / pinv.total_qty, 2)
+        for item in pinv.items:
+            item.inbound_charges = charge_per_unit
+            # update item master data
+            i = frappe.get_doc("Item", item.item_code)
+            if not i.last_inbound_charges or i.last_inbound_charges <= 0:
+                # apply current last value
+                i.last_inbound_charges = charge_per_unit
+            else:
+                # apply floating average
+                i.last_inbound_charges = round((i.last_inbound_charges + charge_per_unit) / 2, 2)
+            i.save()
+        pinv.save()
+        frappe.db.commit()
+    return
