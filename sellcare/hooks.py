@@ -28,7 +28,8 @@ app_license = "AGPL"
 # include js in doctype views
 # doctype_js = {"doctype" : "public/js/doctype.js"}
 doctype_js = {
-    "Customer": "custom_scripts/customer.js"
+    "Customer": "custom_scripts/customer.js",
+    "Item": "custom_scripts/item.js"
 }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
