@@ -10,7 +10,7 @@ def check_so_margin(sales_order):
        `tabSales Order Item`.`idx` AS `idx`,
        `tabSales Order Item`.`item_name` AS `item_name`,
        ROUND(`tabSales Order Item`.`base_amount`, 2) AS `base_amount`,
-       ROUND((`tabItem`.`last_purchase_rate` * `tabSales Order Item`.`qty` + `tabSales Order Item`.`transport_charges`), 2) AS `base_cost`
+       ROUND(((`tabItem`.`last_purchase_rate` + `tabItem`.`last_inbound_charges`) * `tabSales Order Item`.`qty` + `tabSales Order Item`.`transport_charges`), 2) AS `base_cost`
       FROM `tabSales Order Item`
       LEFT JOIN `tabItem` ON `tabItem`.`name` = `tabSales Order Item`.`item_code`
       WHERE `tabSales Order Item`.`parent` = '{sales_order}') AS `items`
@@ -23,11 +23,18 @@ def check_so_margin(sales_order):
        
 @frappe.whitelist()
 def get_batch_info(item_code):
-    sql_query = """SELECT `item_code`, `batch_no`, `qty`, `valuation_rate`
-        FROM (SELECT `item_code`, `batch_no`, SUM(`actual_qty`) AS `qty`, AVG(`valuation_rate`) AS `valuation_rate`
-        FROM `tabStock Ledger Entry`
-        WHERE `item_code` = '{item_code}'
-        GROUP BY `batch_no`) AS `batches`
+    sql_query = """SELECT 
+          `batches`.`item_code`, 
+          `batches`.`batch_no`, 
+          `batches`.`qty`, 
+          `batches`.`valuation_rate`, 
+          (`batches`.`valuation_rate` + `tabtem`.`last_inbound_charges`) AS `full_rate`
+        FROM (
+          SELECT `item_code`, `batch_no`, SUM(`actual_qty`) AS `qty`, AVG(`valuation_rate`) AS `valuation_rate`
+          FROM `tabStock Ledger Entry`        
+          WHERE `item_code` = '{item_code}'
+          GROUP BY `batch_no`) AS `batches`
+        LEFT JOIN `tabtem` ON `tabItem`.`item_code` = `batches`.`item_code`
         WHERE `qty` > 0;""".format(item_code=item_code)
     
     data = frappe.db.sql(sql_query, as_dict=1)

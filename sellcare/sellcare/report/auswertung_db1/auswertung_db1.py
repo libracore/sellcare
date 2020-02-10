@@ -23,7 +23,8 @@ def get_columns():
         {"label": _("Total transport charges"), "fieldname": "total_transport_charges", "fieldtype": "Currency", "width": 150},
         {"label": _("Total cost"), "fieldname": "total_cost", "fieldtype": "Currency", "width": 150},
         {"label": _("Margin"), "fieldname": "margin", "fieldtype": "Currency", "width": 150},
-        {"label": _("Margin %"), "fieldname": "margin_percent", "fieldtype": "Percent", "width": 150}
+        {"label": _("Margin %"), "fieldname": "margin_percent", "fieldtype": "Percent", "width": 150},
+        {"label": _("Inbound charges"), "fieldname": "inbound_charges", "fieldtype": "Currency", "width": 150}
     ]
     
 def get_data(filters):
@@ -44,9 +45,10 @@ def get_data(filters):
          `item_name`,
          SUM(`net_amount`) AS `total_revenue`,
          SUM(`transport_charges`)  AS `total_transport_charges`,
-         SUM(`cost`) AS `total_cost`,
+         (SUM(`cost`) - SUM(`inbound_charges`)) AS `total_cost`,
          (SUM(`net_amount`) - SUM(`transport_charges`) - SUM(`cost`)) AS `margin`,
-         ROUND((100 * ((SUM(`net_amount`) - SUM(`transport_charges`) - SUM(`cost`))/(SUM(`net_amount`)))), 2) AS `margin_percent`
+         ROUND((100 * ((SUM(`net_amount`) - SUM(`transport_charges`) - SUM(`cost`))/(SUM(`net_amount`)))), 2) AS `margin_percent`,
+         SUM(`inbound_charges`) AS `inbound_charges`
         FROM (SELECT 
           `tabSales Invoice`.`customer` AS `customer`,
           `tabSales Invoice`.`customer_name` AS `customer_name`,
@@ -56,8 +58,9 @@ def get_data(filters):
           `tabSales Invoice Item`.`item_name` AS `item_name`,
           ROUND(`tabSales Invoice Item`.`base_net_amount`, 2) AS `net_amount`,
           ROUND(`tabSales Invoice Item`.`transport_charges`, 2) AS `transport_charges`,
-          ROUND((`tabSales Invoice Item`.`qty` * `tabItem`.`last_purchase_rate`), 2) AS `cost`,
-          CONCAT(`tabSales Invoice`.`customer`,YEAR(`tabSales Invoice`.`posting_date`),`tabSales Invoice Item`.`item_code`) AS `key`
+          ROUND((`tabSales Invoice Item`.`qty` * `tabSales Invoice Item`.`last_purchase_rate`), 2) AS `cost`,
+          CONCAT(`tabSales Invoice`.`customer`,YEAR(`tabSales Invoice`.`posting_date`),`tabSales Invoice Item`.`item_code`) AS `key`,
+          ROUND((`tabSales Invoice Item`.`qty` * `tabItem`.`last_inbound_charges`), 2) AS `inbound_charges`
         FROM `tabSales Invoice Item`
         LEFT JOIN `tabItem` ON `tabItem`.`name` = `tabSales Invoice Item`.`item_code`
         LEFT JOIN `tabSales Invoice` ON `tabSales Invoice`.`name` = `tabSales Invoice Item`.`parent`
