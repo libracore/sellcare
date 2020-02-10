@@ -34,7 +34,7 @@ def get_batch_info(item_code):
           FROM `tabStock Ledger Entry`        
           WHERE `item_code` = '{item_code}'
           GROUP BY `batch_no`) AS `batches`
-        LEFT JOIN `tabtem` ON `tabItem`.`item_code` = `batches`.`item_code`
+        LEFT JOIN `tabItem` ON `tabItem`.`item_code` = `batches`.`item_code`
         WHERE `qty` > 0;""".format(item_code=item_code)
     
     data = frappe.db.sql(sql_query, as_dict=1)
