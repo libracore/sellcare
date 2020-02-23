@@ -1,6 +1,6 @@
 cur_frm.dashboard.add_transactions([
     { 
-        'label': _('Documents'),
+        'label': __('Documents'),
         'items': [
             'Customer Item Text'
         ]
