@@ -18,3 +18,4 @@ DocType: Sales Invoice,Invoice,Rechnung
 DocType: Sales Invoice,Sales Invoice,Kunden-RG
 DocType: Purchase Invoice,Purchase Invoice,Lieferanten-RG
 DocType: Item,Batch Overview,Chargenübersicht
+DocType: Item,Customs Tariff Number,HS-Nummer
