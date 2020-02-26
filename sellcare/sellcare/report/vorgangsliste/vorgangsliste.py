@@ -52,7 +52,7 @@ def get_data(filters):
          `customer`,
          `customer_name`,
          `year`,
-         SUM(`qty`)  AS `qty`,
+         `qty`,
          `gebindegroesse`,
          `item_code`,
          `item_name`,
