@@ -19,3 +19,5 @@ DocType: Sales Invoice,Sales Invoice,Kunden-RG
 DocType: Purchase Invoice,Purchase Invoice,Lieferanten-RG
 DocType: Item,Batch Overview,Chargenübersicht
 DocType: Item,Customs Tariff Number,HS-Nummer
+DocType: Sales Invoice,Reference,Referenznummer
+DocType: Sales Invoie,Due date,Fälligkeit
