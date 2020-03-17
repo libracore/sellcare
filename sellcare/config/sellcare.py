@@ -119,6 +119,13 @@ def get_data():
                         "name": "Order Planning",
                         "doctype": "Item",
                         "is_query_report": True
+                   },
+                   {
+                        "type": "report",
+                        "name": "Batch report",
+                        "label": _("Chargenübersicht"),
+                        "doctype": "Batch",
+                        "is_query_report": True
                    }
             ]
         },
