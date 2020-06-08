@@ -27,6 +27,13 @@ def get_data():
                         "is_query_report": False
                    },
                    {
+                        "type": "report",
+                        "name": "Preise pro Artikel",
+                        "label": "Angebotene Preise pro Artikel",
+                        "doctype": "Quotation",
+                        "is_query_report": True
+                   },
+                   {
                        "type": "doctype",
                        "name": "Sales Order",
                        "label": _("Kunden-AB Übersicht"),
@@ -145,6 +152,13 @@ def get_data():
                        "label": _("Customer"),
                        "description": _("Customer")
                    },
+                    {
+                       "type": "report",
+                       "name": "MailChimp Reject Analysis",
+                       "label": _("Mailchimp Fehlermeldungen"),
+                       "doctype": "Error Log",
+                       "is_query_report": True
+                   },
                    {
                        "type": "doctype",
                        "name": "Customer Visit Report",
@@ -177,14 +191,32 @@ def get_data():
                    },
                    {
                         "type": "report",
+                        "name": "DB1 Kundengruppiert",
+                        "doctype": "Sales Invoice",
+                        "is_query_report": True
+                   },
+                   {
+                        "type": "report",
                         "name": "Sales Outlook",
                         "doctype": "Sales Order",
                         "is_query_report": True
                    },
                    {
                         "type": "report",
+                        "name": "Monatlicher Einkaufsumsatz",
+                        "doctype": "Purchase Order",
+                        "is_query_report": True
+                   },
+                   {
+                        "type": "report",
                         "name": "Vorgangsliste",
                         "doctype": "Sales Invoice",
+                        "is_query_report": True
+                   },
+                   {
+                        "type": "report",
+                        "name": "Musterliste",
+                        "doctype": "Delivery Note",
                         "is_query_report": True
                    }
             ]

@@ -45,6 +45,9 @@ def get_data(filters):
         filters.item_name = "%{0}%".format(filters.item_name)
     if not filters.supplier:
         filters.supplier = "%"
+    if int(filters.hide_samples or 0) == 1:
+        conditions.append("`tabBin`.`item_code` NOT LIKE '%.M%'")
+	
         
     sql_query = """SELECT
          `document`,

@@ -1,8 +1,8 @@
-// Copyright (c) 2016-2020, libracore and contributors
+// Copyright (c) 2016, libracore and contributors
 // For license information, please see license.txt
 /* eslint-disable */
 
-frappe.query_reports["Vorgangsliste"] = {
+frappe.query_reports["Preise pro Artikel"] = {
 	"filters": [
         {
 			"fieldname":"customer",
@@ -14,11 +14,6 @@ frappe.query_reports["Vorgangsliste"] = {
 			"fieldname":"item_name",
 			"label": __("Item name"),
 			"fieldtype": "Data"
-		},
-        {
-			"fieldname":"year",
-			"label": __("Year"),
-			"fieldtype": "Int"
 		},
 		{
 			"fieldname":"from_date",
@@ -41,11 +36,6 @@ frappe.query_reports["Vorgangsliste"] = {
 			"label": __("Supplier"),
 			"fieldtype": "Link",
 			"options": "Supplier"
-		},
-		{
-			"fieldname":"hide_samples",
-			"label": __("Hide Samples"),
-			"fieldtype": "Check"
 		}
 	]
 };

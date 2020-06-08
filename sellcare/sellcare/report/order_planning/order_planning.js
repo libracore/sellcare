@@ -9,6 +9,12 @@ frappe.query_reports["Order Planning"] = {
 			"label": __("Supplier"),
 			"fieldtype": "Link",
 			"options": "Supplier"
-		}
+		}, 
+		{
+			"fieldname":"hide_samples",
+			"label": __("Hide samples"),
+			"fieldtype": "Check",
+			"default": 1
+		},
 	]
 };
