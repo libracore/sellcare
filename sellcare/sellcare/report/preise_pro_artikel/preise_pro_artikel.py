@@ -35,9 +35,9 @@ def get_data(filters):
     if not filters.item_name:
         filters.item_name = "%"
     if not filters.from_date:
-        filters.from_date: "%"
+        filters.from_date = "%"
     if not filters.to_date:
-        filters.to_date: "%"
+        filters.to_date = "%"
     else:
         filters.item_name = "%{0}%".format(filters.item_name)
     if not filters.supplier:
