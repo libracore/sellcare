@@ -43,13 +43,15 @@ def get_planning_data(filters, only_reorder=0):
             pass
         if filters['supplier']:
             conditions.append("`tabItem Default`.`default_supplier` = '{0}'".format(filters['supplier']))
+        if hasattr(filters, 'hide_samples') and int(filters['hide_samples'] or 0) == 1:
+            conditions.append("`tabBin`.`item_code` NOT LIKE '%.M%'")
     else:
         if filters.warehouse:
             conditions.append("`tabBin`.`warehouse` = '{0}'".format(filters.warehouse))
         if filters.supplier:
             conditions.append("`tabItem Default`.`default_supplier` = '{0}'".format(filters.supplier))
-    if int(filters.hide_samples or 0) == 1:
-        conditions.append("`tabBin`.`item_code` NOT LIKE '%.M%'")
+        if int(filters.hide_samples or 0) == 1:
+            conditions.append("`tabBin`.`item_code` NOT LIKE '%.M%'")
 	
     sql_query = """SELECT
         `tabBin`.`item_code` AS `item_code`, 
