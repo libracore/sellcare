@@ -23,12 +23,13 @@ def get_columns():
         {"label": _("Customer Name"), "fieldname": "customer_name", "fieldtype": "Data", "width": 100},
         {"label": _("Supplier"), "fieldname": "supplier", "fieldtype": "Link", "options": "Supplier", "width": 100},
         {"label": _("Year"), "fieldname": "year", "fieldtype": "Int", "width": 50},
-        {"label": _("Quantity"), "fieldname": "qty", "fieldtype": "Float", "width": 50},
+        {"label": _("Quantity"), "fieldname": "qty", "fieldtype": "Float", "precision": 3, "width": 50},
         {"label": _("Gebindegrösse"), "fieldname": "gebindegroesse", "fieldtype": "Data", "width": 75},
-        {"label": _("Rate"), "fieldname": "rate", "fieldtype": "Currency", "width": 100},
+        {"label": _("Currency"), "fieldname": "currency", "fieldtype": "Data", "width": 50},     
+        {"label": _("Rate"), "fieldname": "rate", "fieldtype": "Float", "precision": 2, "width": 75},
         {"label": _("Net amount"), "fieldname": "net_amount", "fieldtype": "Currency", "width": 100},
-        {"label": _("Total transport charges"), "fieldname": "total_transport_charges", "fieldtype": "Currency", "width": 100},
-        {"label": _("Total cost"), "fieldname": "total_cost", "fieldtype": "Currency", "width": 100},
+        {"label": _("Total Transport charges"), "fieldname": "transport_charges", "fieldtype": "Currency", "width": 100},
+        {"label": _("Total Cost"), "fieldname": "cost", "fieldtype": "Currency", "width": 100},
         {"label": _("Margin"), "fieldname": "margin", "fieldtype": "Currency", "width": 100},
         {"label": _("Margin %"), "fieldname": "margin_percent", "fieldtype": "Percent", "width": 100},
         {"label": _("Inbound charges"), "fieldname": "inbound_charges", "fieldtype": "Currency", "width": 100}
@@ -59,6 +60,7 @@ def get_data(filters):
          `gebindegroesse`,
          `item_code`,
          `item_name`,
+         `currency`,
          `rate`,
          `item_group`,
          `supplier`,
@@ -70,6 +72,7 @@ def get_data(filters):
          `inbound_charges`
         FROM (SELECT 
           `tabSales Invoice`.`customer` AS `customer`,
+          `tabSales Invoice`.`currency` AS `currency`,
           `tabSales Invoice`.`customer_name` AS `customer_name`,
           `tabSales Invoice`.`name` AS `document`,
           `tabSales Invoice`.`delivery_date` AS `delivery_date`,

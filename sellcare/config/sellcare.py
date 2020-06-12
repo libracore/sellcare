@@ -105,7 +105,7 @@ def get_data():
                    {
                         "type": "report",
                         "name": "Lieferantenbestellung (SQL)",
-                        "label": "Lieferanten-AB", 
+                        "label": "Lieferanten-Bestellung", 
                         "doctype": "Purchase Order",
                         "is_query_report": True
                    },

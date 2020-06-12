@@ -46,73 +46,73 @@ def get_data(filters):
            FROM `tabPurchase Invoice` 
            WHERE (`tabSupplier`.`name` = `tabPurchase Invoice`.`supplier` 
                   AND `docstatus` = 1 
-                  AND `posting_date` >= "{year}-01-01" 
-                  AND `posting_date` < "{year}-02-01")), 0) AS `Jan`,
+                  AND `bill_date` >= "{year}-01-01" 
+                  AND `bill_date` < "{year}-02-01")), 0) AS `Jan`,
           IFNULL((SELECT SUM(`net_total`)
            FROM `tabPurchase Invoice` 
            WHERE (`tabSupplier`.`name` = `tabPurchase Invoice`.`supplier`
                   AND `docstatus` = 1 
-                  AND `posting_date` >= "{year}-02-01" 
-                  AND `posting_date` < "{year}-03-01")), 0) AS `Feb`,
+                  AND `bill_date` >= "{year}-02-01" 
+                  AND `bill_date` < "{year}-03-01")), 0) AS `Feb`,
          IFNULL((SELECT SUM(`net_total`)
            FROM `tabPurchase Invoice` 
            WHERE (`tabSupplier`.`name` = `tabPurchase Invoice`.`supplier` 
                   AND `docstatus` = 1 
-                  AND `posting_date` >= "{year}-03-01" 
-                  AND `posting_date` < "{year}-04-01")), 0) AS `Mar`,
+                  AND `bill_date` >= "{year}-03-01" 
+                  AND `bill_date` < "{year}-04-01")), 0) AS `Mar`,
         IFNULL((SELECT SUM(`net_total`)
            FROM `tabPurchase Invoice` 
            WHERE (`tabSupplier`.`name` = `tabPurchase Invoice`.`supplier`
                   AND `docstatus` = 1 
-                  AND `posting_date` >= "{year}-04-01" 
-                  AND `posting_date` < "{year}-05-01")), 0) AS `Apr`,
+                  AND `bill_date` >= "{year}-04-01" 
+                  AND `bill_date` < "{year}-05-01")), 0) AS `Apr`,
         IFNULL((SELECT SUM(`net_total`)
            FROM `tabPurchase Invoice` 
            WHERE (`tabSupplier`.`name` = `tabPurchase Invoice`.`supplier` 
-                  AND `posting_date` >= "{year}-05-01" 
-                  AND `posting_date` < "{year}-06-01")), 0) AS `May`,
+                  AND `bill_date` >= "{year}-05-01" 
+                  AND `bill_date` < "{year}-06-01")), 0) AS `May`,
         IFNULL((SELECT SUM(`net_total`)
            FROM `tabPurchase Invoice` 
            WHERE (`tabSupplier`.`name` = `tabPurchase Invoice`.`supplier`
                   AND `docstatus` = 1 
-                  AND `posting_date` >= "{year}-06-01" 
-                  AND `posting_date` < "{year}-07-01")), 0) AS `Jun`,
+                  AND `bill_date` >= "{year}-06-01" 
+                  AND `bill_date` < "{year}-07-01")), 0) AS `Jun`,
          IFNULL((SELECT SUM(`net_total`)
            FROM `tabPurchase Invoice` 
            WHERE (`tabSupplier`.`name` = `tabPurchase Invoice`.`supplier`
                   AND `docstatus` = 1 
-                  AND `posting_date` >= "{year}-07-01" 
-                  AND `posting_date` < "{year}-08-01")), 0) AS `Jul`,
+                  AND `bill_date` >= "{year}-07-01" 
+                  AND `bill_date` < "{year}-08-01")), 0) AS `Jul`,
          IFNULL((SELECT SUM(`net_total`)
            FROM `tabPurchase Invoice` 
            WHERE (`tabSupplier`.`name` = `tabPurchase Invoice`.`supplier`
                   AND `docstatus` = 1 
-                  AND `posting_date` >= "{year}-08-01" 
-                  AND `posting_date` < "{year}-09-01")), 0) AS `Aug`,
+                  AND `bill_date` >= "{year}-08-01" 
+                  AND `bill_date` < "{year}-09-01")), 0) AS `Aug`,
          IFNULL((SELECT SUM(`net_total`)
            FROM `tabPurchase Invoice` 
            WHERE (`tabSupplier`.`name` = `tabPurchase Invoice`.`supplier`
                   AND `docstatus` = 1 
-                  AND `posting_date` >= "{year}-09-01" 
-                  AND `posting_date` < "{year}-10-01")), 0) AS `Sep`,
+                  AND `bill_date` >= "{year}-09-01" 
+                  AND `bill_date` < "{year}-10-01")), 0) AS `Sep`,
          IFNULL((SELECT SUM(`net_total`)
            FROM `tabPurchase Invoice` 
            WHERE (`tabSupplier`.`name` = `tabPurchase Invoice`.`supplier`
                   AND `docstatus` = 1 
-                  AND `posting_date` >= "{year}-10-01" 
-                  AND `posting_date` < "{year}-11-01")), 0) AS `Oct`,
+                  AND `bill_date` >= "{year}-10-01" 
+                  AND `bill_date` < "{year}-11-01")), 0) AS `Oct`,
          IFNULL((SELECT SUM(`net_total`)
            FROM `tabPurchase Invoice` 
            WHERE (`tabSupplier`.`name` = `tabPurchase Invoice`.`supplier`
                   AND `docstatus` = 1 
-                  AND `posting_date` >= "{year}-11-01" 
-                  AND `posting_date` < "{year}-12-01")), 0) AS `Nov`,
+                  AND `bill_date` >= "{year}-11-01" 
+                  AND `bill_date` < "{year}-12-01")), 0) AS `Nov`,
         IFNULL((SELECT SUM(`net_total`)
            FROM `tabPurchase Invoice` 
            WHERE (`tabSupplier`.`name` = `tabPurchase Invoice`.`supplier`
                   AND `docstatus` = 1 
-                  AND `posting_date` >= "{year}-12-01" 
-                  AND `posting_date` <= "{year}-12-31")), 0) AS `Dec`
+                  AND `bill_date` >= "{year}-12-01" 
+                  AND `bill_date` <= "{year}-12-31")), 0) AS `Dec`
                   
         FROM `tabSupplier` WHERE `name` LIKE '{supplier}') AS `raw`;
          """.format(year=filters.year, supplier=filters.supplier)
