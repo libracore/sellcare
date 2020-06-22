@@ -14,11 +14,14 @@ def execute(filters=None):
     
 def get_columns():
     return [
-        {"label": _("Item Code"), "fieldname": "item_code", "fieldtype": "Link", "options": "Item", "width": 140},
-        {"label": _("Item Name"), "fieldname": "item_name", "width": 100},
-        {"label": _("Customer"), "fieldname": "customer", "fieldtype": "Link", "options": "Customer", "width": 100},
+        {"label": _("Delivery Date"), "fieldname": "delivery_date", "fieldtype": "Date", "width": 75},
+        {"label": _("Sales Order"), "fieldname": "sales_order", "fieldtype": "Link", "options": "Sales Order", "width": 75},
+        {"label": _("Item Code"), "fieldname": "item_code", "fieldtype": "Link", "options": "Item", "width": 100},
+        {"label": _("Item Name"), "fieldname": "item_name", "width": 140},
+        {"label": _("Packaging"), "fieldname": "gebindegroesse", "width": 75},
+        {"label": _("Customer"), "fieldname": "customer", "fieldtype": "Link", "options": "Customer", "width": 75},
         {"label": _("Customer name"), "fieldname": "customer_name", "fieldtype": "Data", "width": 150},
-        {"label": _("Qty"), "fieldname": "qty", "fieldtype": "Float", "width": 100},
+        {"label": _("Qty"), "fieldname": "qty", "fieldtype": "Float", "precision": 3, "width": 80},
         {"label": _("Net amount"), "fieldname": "net_amount", "fieldtype": "Currency", "width": 100},
         {"label": _("Cost"), "fieldname": "cost", "fieldtype": "Currency", "width": 100},
         {"label": _("Margin"), "fieldname": "margin", "fieldtype": "Currency", "width": 100},
@@ -39,6 +42,8 @@ def get_data(filters):
         filters.customer = "%"
                     
     sql_query = """SELECT
+          `delivery_date`,
+          `sales_order`,
           `item_code`,
           `item_name`,
           `gebindegroesse`,
@@ -56,19 +61,19 @@ def get_data(filters):
          `tabSales Order`.`status` AS `status`,
          `tabSales Order`.`customer` AS `customer`,
          `tabSales Order`.`customer_name` As `customer_name`,
+		 `tabSales Order`.`delivery_date` As `delivery_date`,
          `tabSales Order Item`.`item_code` AS `item_code`,
          `tabSales Order Item`.`item_name` AS `item_name`,
          `tabSales Order Item`.`base_net_amount` AS `base_net_amount`,
          `tabItem`.`gebindegroesse` AS `gebindegroesse`,
          `tabSales Order Item`.`qty` AS `qty`,
          `tabItem Supplier`.`supplier` AS `supplier`,
-         ROUND((`tabSales Order Item`.`qty` * (`tabItem`.`last_purchase_rate` + `tabItem`.`last_inbound_charges`)), 2) AS `cost`,
-         CONCAT(`tabSales Order Item`.`item_code`, "-", `tabSales Order`.`customer`) AS `key`
+         ROUND((`tabSales Order Item`.`qty` * (`tabItem`.`last_purchase_rate` + `tabItem`.`last_inbound_charges`)), 2) AS `cost`
         FROM `tabSales Order` 
          JOIN `tabSales Order Item` ON (`tabSales Order Item`.`parent` = `tabSales Order`.`name`)
          LEFT JOIN `tabItem` ON (`tabSales Order Item`.`item_code` = `tabItem`.`name`)
          LEFT JOIN `tabItem Supplier` ON (`tabItem Supplier`.`parent` = `tabSales Order Item`.`item_code` AND `tabItem Supplier`.`parenttype` = "Item")
-        WHERE
+       WHERE
          `tabSales Order`.`docstatus` = 1
          AND `tabSales Order`.`status` NOT IN ("Stopped", "Closed", "Completed")
          AND IFNULL(`tabSales Order Item`.`delivered_qty`,0) < IFNULL(`tabSales Order Item`.`qty`,0)
@@ -77,7 +82,8 @@ def get_data(filters):
          AND `tabSales Order`.`customer` LIKE '{customer}'
          AND IFNULL(`tabItem Supplier`.`supplier`, "") LIKE '{supplier}'
         ) AS `raw`
-        GROUP BY `key`
+       GROUP BY `customer`
+       ORDER BY `delivery_date` ASC;
       """.format(item_code=filters.item_code, item_name=filters.item_name, 
                  supplier=filters.supplier, customer=filters.customer)
 
