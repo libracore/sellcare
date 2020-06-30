@@ -34,6 +34,8 @@ def get_columns():
 def get_data(filters):
     if not filters.supplier:
         filters.supplier = "%"
+    if not filters.supplier_group:
+        filters.supplier_group = "%"
     if not filters.year:
         filters.year = "%"
 
@@ -114,8 +116,8 @@ def get_data(filters):
                   AND `bill_date` >= "{year}-12-01" 
                   AND `bill_date` <= "{year}-12-31")), 0) AS `Dec`
                   
-        FROM `tabSupplier` WHERE `name` LIKE '{supplier}') AS `raw`;
-         """.format(year=filters.year, supplier=filters.supplier)
+         FROM `tabSupplier` WHERE `name` LIKE '{supplier}' AND `supplier_group` LIKE '{supplier_group}') AS `raw`;
+         """.format(year=filters.year, supplier=filters.supplier, supplier_group=filters.supplier_group)
 
     data = frappe.db.sql(sql_query, as_dict=1)
 

@@ -49,11 +49,11 @@ def get_data(filters):
           `gebindegroesse`,
           `customer`,
           `customer_name`,
-          SUM(`qty`) AS `qty`,
-          SUM(`base_net_amount`) AS `net_amount`,
-          SUM(`cost`) AS `cost`,
-          (SUM(`base_net_amount`) - SUM(`cost`)) AS `margin`,
-          ROUND((100 * (SUM(`base_net_amount`) - SUM(`cost`)) / SUM(`base_net_amount`)), 2) AS `margin_percent`,
+          `qty`,
+          `base_net_amount` AS `net_amount`,
+          `cost`,
+          (`base_net_amount` - `cost`) AS `margin`,
+          ROUND(((100 * `base_net_amount` - `cost`) / `base_net_amount`), 2) AS `margin_percent`,
           `supplier`
         FROM 
         (SELECT 
@@ -69,11 +69,12 @@ def get_data(filters):
          `tabSales Order Item`.`qty` AS `qty`,
          `tabItem Supplier`.`supplier` AS `supplier`,
          ROUND((`tabSales Order Item`.`qty` * (`tabItem`.`last_purchase_rate` + `tabItem`.`last_inbound_charges`)), 2) AS `cost`
-        FROM `tabSales Order` 
-         JOIN `tabSales Order Item` ON (`tabSales Order Item`.`parent` = `tabSales Order`.`name`)
+         /*CONCAT(`tabSales Order Item`.`item_code`, "-", `tabSales Order`.`customer`) AS `key`*/
+        FROM `tabSales Order Item` 
+         JOIN `tabSales Order` ON (`tabSales Order`.`name` = `tabSales Order Item`.`parent`)
          LEFT JOIN `tabItem` ON (`tabSales Order Item`.`item_code` = `tabItem`.`name`)
          LEFT JOIN `tabItem Supplier` ON (`tabItem Supplier`.`parent` = `tabSales Order Item`.`item_code` AND `tabItem Supplier`.`parenttype` = "Item")
-       WHERE
+        WHERE
          `tabSales Order`.`docstatus` = 1
          AND `tabSales Order`.`status` NOT IN ("Stopped", "Closed", "Completed")
          AND IFNULL(`tabSales Order Item`.`delivered_qty`,0) < IFNULL(`tabSales Order Item`.`qty`,0)
@@ -82,8 +83,7 @@ def get_data(filters):
          AND `tabSales Order`.`customer` LIKE '{customer}'
          AND IFNULL(`tabItem Supplier`.`supplier`, "") LIKE '{supplier}'
         ) AS `raw`
-       GROUP BY `customer`
-       ORDER BY `delivery_date` ASC;
+        ORDER BY `delivery_date` ASC;
       """.format(item_code=filters.item_code, item_name=filters.item_name, 
                  supplier=filters.supplier, customer=filters.customer)
 

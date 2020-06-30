@@ -14,7 +14,15 @@ frappe.query_reports["Monatlicher Einkaufsumsatz"] = {
 			"fieldname":"supplier",
 			"label": __("Supplier"),
 			"fieldtype": "Link",
-			"options": "Supplier"
+			"options": "Supplier",
+			"read_only": 1
+		},
+		{
+			"fieldname":"supplier_group",
+			"label": __("Supplier Group"),
+			"fieldtype": "Link",
+			"options": "Supplier Group",
+			"default": "Lieferant"
 		},
 	]
 };
