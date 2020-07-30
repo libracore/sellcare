@@ -53,7 +53,7 @@ def get_data(filters):
           `base_net_amount` AS `net_amount`,
           `cost`,
           (`base_net_amount` - `cost`) AS `margin`,
-          ROUND(((100 * `base_net_amount` - `cost`) / `base_net_amount`), 2) AS `margin_percent`,
+          ROUND((100*((`base_net_amount` - `cost`) / `base_net_amount`)), 2) AS `margin_percent`,
           `supplier`
         FROM 
         (SELECT 
