@@ -4,3 +4,5 @@
 *.swp
 tags
 sellcare/docs/current
+__pycache__
+
