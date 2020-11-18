@@ -148,3 +148,20 @@ def update_inbound_charges(purchase_invoice):
         pinv.save()
         frappe.db.commit()
     return
+
+@frappe.whitelist()
+def get_blanket_orders(item_code):
+    sql_query = """SELECT
+		`tabBlanket Order`.`name` AS `blanket_order`,
+		`tabBlanket Order`.`to_date` AS `to_date`,
+		`tabBlanket Order`.`customer_name` AS `customer_name`,
+		`tabBlanket Order Item`.`qty` AS `qty`,
+		`tabBlanket Order Item`.`ordered_qty` AS `bo_ordered_qty`,
+		(`tabBlanket Order Item`.`qty` - `tabBlanket Order Item`.`ordered_qty`) AS `bo_outstanding_qty`
+       FROM `tabBlanket Order`
+       LEFT JOIN `tabBlanket Order Item` ON `tabBlanket Order`.`name` = `tabBlanket Order Item`.`parent`
+        WHERE `tabBlanket Order`.`docstatus` = 1 AND `tabBlanket Order Item`.`item_code` = '{item_code}'
+        ORDER BY `tabBlanket Order`.`to_date` ASC""".format(item_code=item_code)
+    
+    data = frappe.db.sql(sql_query, as_dict=1)
+    return data
