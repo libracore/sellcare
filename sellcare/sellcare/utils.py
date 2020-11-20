@@ -160,7 +160,7 @@ def get_blanket_orders(item_code):
 		(`tabBlanket Order Item`.`qty` - `tabBlanket Order Item`.`ordered_qty`) AS `bo_outstanding_qty`
        FROM `tabBlanket Order`
        LEFT JOIN `tabBlanket Order Item` ON `tabBlanket Order`.`name` = `tabBlanket Order Item`.`parent`
-        WHERE `tabBlanket Order`.`docstatus` = 1 AND `tabBlanket Order Item`.`item_code` = '{item_code}'
+        WHERE `tabBlanket Order`.`docstatus` = 1 AND (`tabBlanket Order Item`.`qty` - `tabBlanket Order Item`.`ordered_qty`) AND `tabBlanket Order Item`.`item_code` = '{item_code}'
         ORDER BY `tabBlanket Order`.`to_date` ASC""".format(item_code=item_code)
     
     data = frappe.db.sql(sql_query, as_dict=1)
