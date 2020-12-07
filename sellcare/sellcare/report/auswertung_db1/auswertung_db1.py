@@ -55,7 +55,7 @@ def get_data(filters):
          `supplier`,
          SUM(`net_amount`) AS `total_revenue`,
          SUM(`transport_charges`)  AS `total_transport_charges`,
-         (SUM(`cost`) - SUM(`inbound_charges`)) AS `total_cost`,
+         (SUM(`cost`) + SUM(`inbound_charges`)) AS `total_cost`,
          (SUM(`net_amount`) - SUM(`transport_charges`) - SUM(`cost`) - SUM(`inbound_charges`)) AS `margin`,
          ROUND((100 * ((SUM(`net_amount`) - SUM(`transport_charges`) - SUM(`cost`) - SUM(`inbound_charges`))/(SUM(`net_amount`)))), 2) AS `margin_percent`,
          SUM(`inbound_charges`) AS `inbound_charges`
