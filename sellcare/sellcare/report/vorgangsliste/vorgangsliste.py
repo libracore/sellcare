@@ -66,7 +66,7 @@ def get_data(filters):
          `supplier`,
          `net_amount`,
          `transport_charges`,
-         (`cost` - `inbound_charges`) AS `cost`,
+         (`cost` + `inbound_charges`) AS `cost`,
          (`net_amount` - `transport_charges` - `cost` - `inbound_charges`) AS `margin`,
          ROUND(((100 * (`net_amount` - `transport_charges` - `cost` - `inbound_charges`))/(`net_amount`)), 2) AS `margin_percent`,
          `inbound_charges`
