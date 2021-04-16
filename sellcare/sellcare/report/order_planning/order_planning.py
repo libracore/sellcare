@@ -54,7 +54,7 @@ def get_planning_data(filters, only_reorder=0):
             conditions.append("`tabItem Default`.`default_supplier` = '{0}'".format(filters.supplier))
         if int(filters.hide_samples or 0) == 1:
             conditions.append("`tabBin`.`item_code` NOT LIKE '%.M%'")
-	# only include valid documents
+    # only include valid documents
     conditions.append ("(`tabBlanket Order Item`.`docstatus` != 2 OR ISNULL(`tabBlanket Order Item`.`docstatus`))")
     
     sql_query = """SELECT
@@ -70,19 +70,21 @@ def get_planning_data(filters, only_reorder=0):
         `tabBin`.`projected_qty` AS `projected_qty`,
         `tabItem`.`safety_stock` AS `safety_stock`,
         (`tabBin`.`projected_qty` - `tabItem`.`safety_stock`) AS `projected_safety_qty`,
-		`tabBlanket Order Item`.`qty` AS `bo_qty`,
-	    `tabBlanket Order Item`.`ordered_qty` AS `bo_ordered_qty`,
-        (`tabBlanket Order Item`.`qty` - `tabBlanket Order Item`.`ordered_qty`) AS `bo_outstanding_qty`,
+        `tabBlanket Order Item`.`qty` AS `bo_qty`,
+        `tabBlanket Order Item`.`ordered_qty` AS `bo_ordered_qty`,
+        CASE
+            WHEN (`tabBlanket Order Item`.`qty` - `tabBlanket Order Item`.`ordered_qty`) >= 0 THEN (`tabBlanket Order Item`.`qty` - `tabBlanket Order Item`.`ordered_qty`)
+            ELSE 0.00
+        END AS `bo_outstanding_qty`,
         `tabBlanket Order Item`.`parent` AS `blanket_order`
-      FROM `tabBin`
+      FROM `tabBin`      
       LEFT JOIN `tabItem` ON `tabItem`.`name` = `tabBin`.`item_code`
-      LEFT JOIN `tabItem Default` ON 
-        (`tabItem Default`.`parenttype` = 'Item' AND `tabItem Default`.`parent` = `tabBin`.`item_code`)
-	  LEFT JOIN `tabBlanket Order Item` ON `tabItem`.`item_code` = `tabBlanket Order Item`.`item_code`
-      {conditions} 
+      LEFT JOIN `tabItem Default` ON (`tabItem Default`.`parenttype` = 'Item' AND `tabItem Default`.`parent` = `tabBin`.`item_code`)
+      LEFT JOIN `tabBlanket Order Item` ON `tabItem`.`item_code` = `tabBlanket Order Item`.`item_code`
+      {conditions}
       ORDER BY `tabBin`.`projected_qty` ASC
-      """.format(conditions=" WHERE " + " AND ".join(conditions) if conditions else "")
- 
+      """.format(conditions= " WHERE " + " AND ".join(conditions) if conditions else "")
+
     data = frappe.db.sql(sql_query, as_dict=1)
 
     return data
