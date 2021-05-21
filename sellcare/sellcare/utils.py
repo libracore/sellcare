@@ -3,6 +3,7 @@
 
 import frappe
 from frappe import _
+from datetime import datetime, timedelta
 
 @frappe.whitelist()
 def check_so_margin(sales_order):
@@ -50,16 +51,19 @@ def create_pricing_rules_from_qtn(quotation):
         # loop through items
         for item in qtn.items:
             # check if there is already a matching pricing rule
-            matching_rules = get_matching_pricing_rules(customer, item.item_code, item.qty)
+            matching_rules = get_matching_pricing_rules(customer, item.item_code, item.qty, item.item_price_valid_from)
             if matching_rules:
                 # update rule
                 rule = frappe.get_doc("Pricing Rule", matching_rules[0]['name'])
                 rule.rate = item.rate
+                rule.valid_from = item.item_price_valid_from
                 rule.priority = find_priority(customer, item.item_code, int(item.qty))
                 rule.save()
                 frappe.db.commit()
             else:
-                # create rule
+                set_upto_in_earlier_pricing_rule(customer, item.item_code, item.qty, item.item_price_valid_from)
+                valid_upto = get_upto_from_later_pricing_rule(customer, item.item_code, item.qty, item.item_price_valid_from)
+                # create new rule
                 prio = find_priority(customer, item.item_code, int(item.qty))
                 rule = frappe.get_doc({
                     'doctype': 'Pricing Rule',
@@ -71,19 +75,22 @@ def create_pricing_rules_from_qtn(quotation):
                     'min_qty': item.qty,
                     'rate_or_discount': 'Rate',
                     'rate': item.rate,
+                    'valid_from': item.item_price_valid_from,
+                    'valid_upto': valid_upto,
                     'priority': prio,
-                    'title': "{0} {1} {2}kg".format(customer, item.item_code, item.qty)
+                    'title': "{0} {1} {2}kg {3}".format(customer, item.item_code, item.qty, item.item_price_valid_from)
                 })
                 rule.insert()
                 frappe.db.commit()
     return
             
-def get_matching_pricing_rules(customer, item_code, qty):
+def get_matching_pricing_rules(customer, item_code, qty, valid_from):
     sql_query = """SELECT 
           `tabPricing Rule`.`name`,
           `tabPricing Rule`.`customer`,
           `tabPricing Rule`.`min_qty`,
           `tabPricing Rule`.`priority`,
+          `tabPricing Rule`.`valid_from`,
           `tabPricing Rule`.`rate`,
           `tabPricing Rule Item Code`.`item_code`
         FROM `tabPricing Rule Item Code`
@@ -91,10 +98,48 @@ def get_matching_pricing_rules(customer, item_code, qty):
         WHERE 
           `tabPricing Rule Item Code`.`item_code` = '{item_code}'
           AND `tabPricing Rule`.`customer` = '{customer}'
-          AND `tabPricing Rule`.`min_qty` = {qty};""".format(item_code=item_code, qty=qty, customer=customer)
+          AND `tabPricing Rule`.`valid_from` = '{valid_from}'
+          AND `tabPricing Rule`.`min_qty` = {qty};""".format(item_code=item_code, qty=qty, customer=customer, valid_from=valid_from)
     data = frappe.db.sql(sql_query, as_dict=1)
     return data
+    
+def set_upto_in_earlier_pricing_rule(customer, item_code, qty, valid_from):
+    sql_query = """SELECT 
+          `tabPricing Rule`.`name`
+        FROM `tabPricing Rule Item Code`
+        LEFT JOIN `tabPricing Rule` ON `tabPricing Rule`.`name` = `tabPricing Rule Item Code`.`parent`
+        WHERE 
+          `tabPricing Rule Item Code`.`item_code` = '{item_code}'
+          AND `tabPricing Rule`.`customer` = '{customer}'
+          AND `tabPricing Rule`.`valid_from` < '{valid_from}'
+          AND `tabPricing Rule`.`min_qty` = {qty}
+        ORDER BY `tabPricing Rule`.`valid_from` DESC
+        LIMIT 1;""".format(item_code=item_code, qty=qty, customer=customer, valid_from=valid_from)
+    earlier_pricing_rules = frappe.db.sql(sql_query, as_dict=1)
+    if earlier_pricing_rules and len(earlier_pricing_rules) > 0:
+        earlier_pricing_rule = frappe.get_doc("Pricing Rule", earlier_pricing_rules[0]['name'])
+        earlier_pricing_rule.valid_upto = valid_from - timedelta (days = 1)
+        earlier_pricing_rule.save()
+    return
 
+def get_upto_from_later_pricing_rule(customer, item_code, qty, valid_from):
+    sql_query = """SELECT 
+          `tabPricing Rule`.`valid_from`
+        FROM `tabPricing Rule Item Code`
+        LEFT JOIN `tabPricing Rule` ON `tabPricing Rule`.`name` = `tabPricing Rule Item Code`.`parent`
+        WHERE 
+          `tabPricing Rule Item Code`.`item_code` = '{item_code}'
+          AND `tabPricing Rule`.`customer` = '{customer}'
+          AND `tabPricing Rule`.`valid_from` > '{valid_from}'
+          AND `tabPricing Rule`.`min_qty` = {qty}
+        ORDER BY `tabPricing Rule`.`valid_from` ASC
+        LIMIT 1;""".format(item_code=item_code, qty=qty, customer=customer, valid_from=valid_from)
+    later_pricing_rules = frappe.db.sql(sql_query, as_dict=1)
+    if later_pricing_rules and len(later_pricing_rules) > 0:
+        return later_pricing_rules[0]['valid_from'] - timedelta (days = 1)
+    else:
+        return None
+    
 def find_priority(customer, item_code, qty):
     sql_query = """SELECT MAX(`tabPricing Rule`.`priority`) AS `max`
         FROM `tabPricing Rule Item Code`
@@ -109,6 +154,7 @@ def find_priority(customer, item_code, qty):
             prio = 20
         else:
             prio = int(data[0]['max']) + 1
+    #if no prio found, create one
     else:
         prio = 1
     return prio
