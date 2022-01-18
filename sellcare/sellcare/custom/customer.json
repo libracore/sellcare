@@ -502,7 +502,7 @@
    "modified_by": "lars.mueller@libracore.com",
    "name": "Customer-responsible",
    "no_copy": 0,
-   "options": "CVG\nNG\nRSA\nRU",
+   "options": "CVG\nNBL\nRSA\nRU",
    "owner": "lars.mueller@libracore.com",
    "parent": null,
    "parentfield": null,
