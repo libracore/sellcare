@@ -1,4 +1,4 @@
-# Copyright (c) 2019-2020, libracore and contributors
+# Copyright (c) 2019-2022, libracore and contributors
 # For license information, please see license.txt
 
 from __future__ import unicode_literals
@@ -68,7 +68,7 @@ def get_data(filters):
          `tabItem`.`gebindegroesse` AS `gebindegroesse`,
          `tabSales Order Item`.`qty` AS `qty`,
          `tabItem Supplier`.`supplier` AS `supplier`,
-         ROUND((`tabSales Order Item`.`qty` * (`tabItem`.`last_purchase_rate` + `tabItem`.`last_inbound_charges`)), 2) AS `cost`
+         ROUND((`tabSales Order Item`.`qty` * ((SELECT AVG(`tabBin`.`valuation_rate`) FROM `tabBin` WHERE `tabBin`.`item_code` = `tabSales Order Item`.`item_code`) + `tabItem`.`last_inbound_charges`)), 2) AS `cost`
          /*CONCAT(`tabSales Order Item`.`item_code`, "-", `tabSales Order`.`customer`) AS `key`*/
         FROM `tabSales Order Item` 
          JOIN `tabSales Order` ON (`tabSales Order`.`name` = `tabSales Order Item`.`parent`)
