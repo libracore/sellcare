@@ -211,3 +211,75 @@ def get_blanket_orders(item_code):
     
     data = frappe.db.sql(sql_query, as_dict=1)
     return data
+
+"""
+This function will compute the CoGS based on a delivery note item or sales order+item
+"""
+def get_cogs(sales_order=None, item_code=None, delivery_note_item=None):
+    if delivery_note_item:
+        sql_query = """
+            SELECT IFNULL(AVG(`tabStock Ledger Entry`.`valuation_rate`), 0) AS `valuation_rate`
+            FROM `tabStock Ledger Entry`
+            WHERE
+                `tabStock Ledger Entry`.`voucher_detail_no` = "{dn_detail}"
+            ;
+        """.format(dn_detail=delivery_note_item)
+    else:
+        sql_query = """
+            SELECT IFNULL(AVG(`tabStock Ledger Entry`.`valuation_rate`), 0) AS `valuation_rate`
+            FROM `tabDelivery Note Item` 
+            LEFT JOIN `tabStock Ledger Entry` ON `tabStock Ledger Entry`.`voucher_detail_no` = `tabDelivery Note Item`.`name`
+            WHERE
+                `tabDelivery Note Item`.`item_code` = "{item_code}"
+                AND `tabDelivery Note Item`.`against_sales_order` = "{sales_order}"
+            ;
+        """.format(item_code=item_code, sales_order=sales_order)
+    data = frappe.db.sql(sql_query, as_dict=True)
+    return data[0]['valuation_rate']
+
+"""
+This function will validate cogs against last_purchase rates (output display)
+
+Run from bench using 
+ $ bench execute sellcare.sellcare.utils.test_validate_cogs
+"""
+def test_validate_cogs():
+    sinvs = frappe.get_all("Sales Invoice", filters={'docstatus': 1}, fields=['name'])
+    for sinv in sinvs:
+        doc = frappe.get_doc("Sales Invoice", sinv['name'])
+        for i in doc.items:
+            if i.sales_order:
+                #cogs = get_cogs(sales_order=i.sales_order, item_code=i.item_code)
+                cogs = get_cogs(delivery_note_item=i.dn_detail)
+                print("{0}#{1}: rate: {2}, last_purchase: {3}, cogs: {4}".format(doc.name, i.item_code,
+                    i.rate, i.last_purchase_rate, cogs))
+    return
+
+"""
+This function can be used to recursively compute and update cogs value (migration)
+
+Run from bench using:
+ $ bench execute sellcare.sellcare.utils.compute_sinv_cogs
+"""
+def compute_sinv_cogs():
+    sinvs = frappe.get_all("Sales Invoice", filters={'docstatus': 1}, fields=['name'])
+    for sinv in sinvs:
+        store_cogs(sinv['name'], debug=True)
+    return
+
+"""
+This function allows to store the cogs after submit of a sales invoice
+"""
+@frappe.whitelist()
+def store_cogs(sinv, debug=False):
+    doc = frappe.get_doc("Sales Invoice", sinv)
+    for i in doc.items:
+        if i.dn_detail:
+            cogs = get_cogs(delivery_note_item=i.dn_detail)
+            if debug:
+                print("{0}#{1}: rate: {2}, last_purchase: {3}, cogs: {4}".format(doc.name, i.item_code,
+                    i.rate, i.last_purchase_rate, cogs))
+            frappe.db.sql("""UPDATE `tabSales Invoice Item`
+                             SET `cogs_rate` = {cogs}
+                             WHERE `name` = "{name}";""".format(cogs=cogs, name=i.name))
+    frappe.db.commit()

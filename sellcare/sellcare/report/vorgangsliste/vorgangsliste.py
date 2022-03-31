@@ -86,7 +86,7 @@ def get_data(filters):
           `tabItem Supplier`.`supplier` AS `supplier`,
           ROUND(`tabSales Invoice Item`.`base_net_amount`, 2) AS `net_amount`,
           ROUND(`tabSales Invoice Item`.`transport_charges`, 2) AS `transport_charges`,
-          ROUND((`tabSales Invoice Item`.`qty` * (SELECT AVG(`tabBin`.`valuation_rate`) FROM `tabBin` WHERE `tabBin`.`item_code` = `tabSales Invoice Item`.`item_code`)), 2) AS `cost`,
+          ROUND((`tabSales Invoice Item`.`qty` * `tabSales Invoice Item`.`cogs_rate`), 2) AS `cost`,
           CONCAT(`tabSales Invoice`.`customer`,YEAR(`tabSales Invoice`.`posting_date`),`tabSales Invoice Item`.`item_code`) AS `key`,
           ROUND((`tabSales Invoice Item`.`qty` * `tabItem`.`last_inbound_charges`), 2) AS `inbound_charges`
         FROM `tabSales Invoice Item`
