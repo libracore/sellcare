@@ -29,9 +29,21 @@ def get_batch_info(item_code):
           `batches`.`batch_no`, 
           `batches`.`qty`, 
           `batches`.`valuation_rate`, 
-          (`batches`.`valuation_rate` + `tabItem`.`last_inbound_charges`) AS `full_rate`
+          `batches`.`min_rate`, 
+          `batches`.`max_rate`, 
+          (`batches`.`max_rate` + `tabItem`.`last_inbound_charges`) AS `full_rate`
         FROM (
-          SELECT `item_code`, `batch_no`, SUM(`actual_qty`) AS `qty`, AVG(`valuation_rate`) AS `valuation_rate`
+          SELECT 
+            `tabStock Ledger Entry`.`item_code`, 
+            `tabStock Ledger Entry`.`batch_no`, 
+            SUM(`tabStock Ledger Entry`.`actual_qty`) AS `qty`, 
+            AVG(`tabStock Ledger Entry`.`valuation_rate`) AS `valuation_rate`,
+            ROUND((SELECT MIN(`tabSLEin`.`incoming_rate`) 
+             FROM `tabStock Ledger Entry` AS `tabSLEin`
+             WHERE `tabSLEin`.`batch_no` = `tabStock Ledger Entry`.`batch_no`
+               AND `tabSLEin`.`item_code` = `tabStock Ledger Entry`.`item_code`
+               AND `tabSLEin`.`incoming_rate` > 0), 2) AS `min_rate`,
+            ROUND(MAX(`tabStock Ledger Entry`.`incoming_rate`), 2) AS `max_rate`
           FROM `tabStock Ledger Entry`        
           WHERE `item_code` = '{item_code}'
           GROUP BY `batch_no`) AS `batches`
