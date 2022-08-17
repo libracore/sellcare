@@ -22,3 +22,5 @@ DocType: Item,Customs Tariff Number,HS-Nummer
 DocType: Sales Invoice,Reference,Referenznummer
 DocType: Sales Invoie,Due date,Fälligkeit
 DocType: Journal Entry,Annual Refund,Jahresrückvergütung
+DocType: Sales Invoie,Goods recipient,Waren Empfänger
+DocType: Sales Invoie,Proforma Invoice,Proforma Rechnung
