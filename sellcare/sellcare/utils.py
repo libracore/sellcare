@@ -295,3 +295,17 @@ def store_cogs(sinv, debug=False):
                              SET `cogs_rate` = {cogs}
                              WHERE `name` = "{name}";""".format(cogs=cogs, name=i.name))
     frappe.db.commit()
+
+"""
+This function allows to switch a sales order to delivered/completed (so that blanket orders can be closed with different items)
+"""
+@frappe.whitelist()
+def deliver_and_close_sales_order(sales_order):
+    if frappe.db.exists("Sales Order", sales_order):
+        frappe.db.sql("""
+            UPDATE `tabSales Order` 
+            SET `per_delivered` = 100, `status` = "Completed" 
+            WHERE `name` = "{sales_order}";
+        """.format(sales_order=sales_order))
+        frappe.db.commit()
+    return
