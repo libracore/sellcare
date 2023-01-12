@@ -108,6 +108,7 @@
  "custom_perms": [],
  "doctype": "Purchase Invoice",
  "property_setters": [ 
+  {
    "_assign": null,
    "_comments": null,
    "_liked_by": null,
