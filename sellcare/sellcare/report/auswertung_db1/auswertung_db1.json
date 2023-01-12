@@ -1,5 +1,5 @@
 {
- "add_total_row": 0,
+ "add_total_row": 1,
  "creation": "2020-01-16 00:25:26.751273",
  "disable_prepared_report": 0,
  "disabled": 0,
@@ -8,7 +8,7 @@
  "idx": 0,
  "is_standard": "Yes",
  "letter_head": "Default Letter Head",
- "modified": "2020-01-16 00:25:26.751273",
+ "modified": "2023-01-12 00:25:26.751273",
  "modified_by": "Administrator",
  "module": "Sellcare",
  "name": "Auswertung DB1",
