@@ -130,7 +130,7 @@
    "property": "default",
    "property_type": "Text",
    "value": "Net Total"
-  },
+  }
  ],
  "sync_on_migrate": 1
 }
