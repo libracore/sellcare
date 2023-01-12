@@ -247,7 +247,11 @@ def get_cogs(sales_order=None, item_code=None, delivery_note_item=None):
             ;
         """.format(item_code=item_code, sales_order=sales_order)
     data = frappe.db.sql(sql_query, as_dict=True)
-    return data[0]['valuation_rate']
+    cogs = data[0]['valuation_rate']
+    if not cogs:
+        # fallback to last purchase rate
+        cogs = frappe.get_value("Item", item_code, "last_purchase_rate")
+    return cogs
 
 """
 This function will validate cogs against last_purchase rates (output display)
