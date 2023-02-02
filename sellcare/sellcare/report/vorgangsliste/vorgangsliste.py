@@ -7,13 +7,17 @@ from frappe import _
 
 def execute(filters=None):
     filters = frappe._dict(filters or {})
-    columns = get_columns()
+    columns = get_columns(filters)
     data = get_data(filters)
 
     return columns, data
     
-def get_columns():
-    return [
+def get_columns(filters):
+    currency = "CHF"
+    if filters.customer:
+        currency = frappe.get_value("Customer", filters.customer, "default_currency")
+        
+    columns = [
         {"label": _("Sales Invoice"), "fieldname": "document", "fieldtype": "Link", "options": "Sales Invoice", "width": 100},
         {"label": _("Delivery date"), "fieldname": "delivery_date", "fieldtype": "Date", "width": 70},
         {"label": _("Item Code"), "fieldname": "item_code", "fieldtype": "Link", "options": "Item", "width": 140},
@@ -26,14 +30,19 @@ def get_columns():
         {"label": _("Quantity"), "fieldname": "qty", "fieldtype": "Float", "precision": 3, "width": 50},
         {"label": _("Gebindegrösse"), "fieldname": "gebindegroesse", "fieldtype": "Data", "width": 75},
         {"label": _("Currency"), "fieldname": "currency", "fieldtype": "Data", "width": 50},     
-        {"label": _("Rate"), "fieldname": "rate", "fieldtype": "Float", "precision": 2, "width": 75},
-        {"label": _("Net amount"), "fieldname": "net_amount", "fieldtype": "Currency", "width": 100},
-        {"label": _("Total Transport charges"), "fieldname": "transport_charges", "fieldtype": "Currency", "width": 100},
-        {"label": _("Total Cost"), "fieldname": "cost", "fieldtype": "Currency", "width": 100},
-        {"label": _("Margin"), "fieldname": "margin", "fieldtype": "Currency", "width": 100},
-        {"label": _("Margin %"), "fieldname": "margin_percent", "fieldtype": "Percent", "width": 100},
-        {"label": _("Inbound charges"), "fieldname": "inbound_charges", "fieldtype": "Currency", "width": 100}
+        {"label": _("Rate"), "fieldname": "rate", "fieldtype": "Float", "precision": 2, "width": 75}
     ]
+    if currency != "CHF":
+        columns.append({"label": "{0} ({1})".format(_("Net Amount"), currency), "fieldname": "net_amount", "fieldtype": "Float", "precision": 2, "width": 100})
+        
+    columns.append({"label": _("Net Amount"), "fieldname": "base_net_amount", "fieldtype": "Currency", "width": 100})
+    columns.append({"label": _("Total Transport charges"), "fieldname": "transport_charges", "fieldtype": "Currency", "width": 100})
+    columns.append({"label": _("Total Cost"), "fieldname": "cost", "fieldtype": "Currency", "width": 100})
+    columns.append({"label": _("Margin"), "fieldname": "margin", "fieldtype": "Currency", "width": 100})
+    columns.append({"label": _("Margin %"), "fieldname": "margin_percent", "fieldtype": "Percent", "width": 100})
+    columns.append({"label": _("Inbound charges"), "fieldname": "inbound_charges", "fieldtype": "Currency", "width": 100})
+    
+    return columns
     
 def get_data(filters):
     if not filters.customer:
@@ -65,6 +74,7 @@ def get_data(filters):
          `item_group`,
          `supplier`,
          `net_amount`,
+         `base_net_amount`,
          `transport_charges`,
          (`cost` + `inbound_charges`) AS `cost`,
          (`net_amount` - `transport_charges` - `cost` - `inbound_charges`) AS `margin`,
@@ -84,7 +94,8 @@ def get_data(filters):
           `tabSales Invoice Item`.`rate` AS `rate`,
           `tabItem`.`item_group` AS `item_group`,
           `tabItem Supplier`.`supplier` AS `supplier`,
-          ROUND(`tabSales Invoice Item`.`base_net_amount`, 2) AS `net_amount`,
+          ROUND(`tabSales Invoice Item`.`net_amount`, 2) AS `net_amount`,
+          ROUND(`tabSales Invoice Item`.`base_net_amount`, 2) AS `base_net_amount`,
           ROUND(`tabSales Invoice Item`.`transport_charges`, 2) AS `transport_charges`,
           ROUND((`tabSales Invoice Item`.`qty` * `tabSales Invoice Item`.`cogs_rate`), 2) AS `cost`,
           CONCAT(`tabSales Invoice`.`customer`,YEAR(`tabSales Invoice`.`posting_date`),`tabSales Invoice Item`.`item_code`) AS `key`,
