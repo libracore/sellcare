@@ -22,7 +22,8 @@ def get_columns():
         {"label": _("Customer"), "fieldname": "customer", "fieldtype": "Link", "options": "Customer", "width": 100},
         {"label": _("Customer name"), "fieldname": "customer_name", "fieldtype": "Data", "width": 150},
         {"label": _("Qty ordered"), "fieldname": "qty", "fieldtype": "Float", "width": 100, "convertible": "qty"},
-        {"label": _("Qty to deliver"), "fieldname": "qty_to_deliver", "fieldtype": "Float", "width": 100, "convertible": "qty"}
+        {"label": _("Qty to deliver"), "fieldname": "qty_to_deliver", "fieldtype": "Float", "width": 100, "convertible": "qty"},
+        {"label": _("Available Qty"), "fieldname": "available_qty", "fieldtype": "Float", "width": 100}
     ]
     
 def get_data(filters):
