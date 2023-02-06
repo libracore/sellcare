@@ -17,11 +17,11 @@ def get_columns():
         {"label": _("Delivery Date"), "fieldname": "delivery_date", "fieldtype": "Date", "width": 120},
         {"label": _("Item Code"), "fieldname": "item_code", "fieldtype": "Link", "options": "Item", "width": 140},
         {"label": _("Item Name"), "fieldname": "item_name", "width": 100},
-        {"label": _("Gebindegrösse"), "fieldname": "gebindegroesse", "width": 100},
+        # {"label": _("Gebindegrösse"), "fieldname": "gebindegroesse", "width": 100},
         {"label": _("Sales Order"), "fieldname": "sales_order", "fieldtype": "Link", "options": "Sales Order", "width": 100},
         {"label": _("Customer"), "fieldname": "customer", "fieldtype": "Link", "options": "Customer", "width": 100},
         {"label": _("Customer name"), "fieldname": "customer_name", "fieldtype": "Data", "width": 150},
-        {"label": _("Qty ordered"), "fieldname": "qty", "fieldtype": "Float", "width": 100, "convertible": "qty"},
+        # {"label": _("Qty ordered"), "fieldname": "qty", "fieldtype": "Float", "width": 100, "convertible": "qty"},
         {"label": _("Qty to deliver"), "fieldname": "qty_to_deliver", "fieldtype": "Float", "width": 100, "convertible": "qty"},
         {"label": _("Available Qty"), "fieldname": "available_qty", "fieldtype": "Float", "width": 100}
     ]
