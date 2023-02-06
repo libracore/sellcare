@@ -69,6 +69,10 @@ def get_data(filters):
 
     for d in data:
         if d['qty_to_deliver'] > d['available_qty']:
-            d['qty_to_deliver'] = "<span style=\"color: red; \">{0}</span>".format(d['qty_to_deliver'])
+            d['qty_to_deliver'] = "<span style=\"color: red; \">{0:.2f}</span>".format(d['qty_to_deliver'])
+        else:
+            d['qty_to_deliver'] = "{0:.2f}".format(d['qty_to_deliver'])
+        
+        d['available_qty'] = "{0:.2f}".format(d['available_qty'])
         
     return data
