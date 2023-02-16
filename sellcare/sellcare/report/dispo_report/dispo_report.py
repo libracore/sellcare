@@ -23,7 +23,8 @@ def get_columns():
         {"label": _("Customer name"), "fieldname": "customer_name", "fieldtype": "Data", "width": 150},
         # {"label": _("Qty ordered"), "fieldname": "qty", "fieldtype": "Float", "width": 100, "convertible": "qty"},
         {"label": _("Liefermenge"), "fieldname": "qty_to_deliver", "fieldtype": "Data", "width": 100, "convertible": "qty"},
-        {"label": _("Available Qty"), "fieldname": "available_qty", "fieldtype": "Data", "width": 100}
+        {"label": _("Available Qty"), "fieldname": "available_qty", "fieldtype": "Data", "width": 100},
+        {"label": "", "fieldname": "blank", "fieldtype": "Data", "width": 20}
     ]
     
 def get_data(filters):
