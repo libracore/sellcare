@@ -14,16 +14,17 @@ def execute(filters=None):
     
 def get_columns():
     return [
-        {"label": _("Delivery Date"), "fieldname": "delivery_date", "fieldtype": "Date", "width": 120},
-        {"label": _("Item Code"), "fieldname": "item_code", "fieldtype": "Link", "options": "Item", "width": 140},
-        {"label": _("Item Name"), "fieldname": "item_name", "width": 100},
-        {"label": _("Gebindegrösse"), "fieldname": "gebindegroesse", "width": 100},
+        {"label": _("Delivery Date"), "fieldname": "delivery_date", "fieldtype": "Date", "width": 100},
+        {"label": _("Item Code"), "fieldname": "item_code", "fieldtype": "Link", "options": "Item", "width": 300},
+        # {"label": _("Item Name"), "fieldname": "item_name", "width": 100},
+        # {"label": _("Gebindegrösse"), "fieldname": "gebindegroesse", "width": 100},
         {"label": _("Sales Order"), "fieldname": "sales_order", "fieldtype": "Link", "options": "Sales Order", "width": 100},
         {"label": _("Customer"), "fieldname": "customer", "fieldtype": "Link", "options": "Customer", "width": 100},
         {"label": _("Customer name"), "fieldname": "customer_name", "fieldtype": "Data", "width": 150},
-        {"label": _("Qty ordered"), "fieldname": "qty", "fieldtype": "Float", "width": 100, "convertible": "qty"},
-        {"label": _("Qty to deliver"), "fieldname": "qty_to_deliver", "fieldtype": "Float", "width": 100, "convertible": "qty"},
-        {"label": _("Available Qty"), "fieldname": "available_qty", "fieldtype": "Float", "width": 100}
+        # {"label": _("Qty ordered"), "fieldname": "qty", "fieldtype": "Float", "width": 100, "convertible": "qty"},
+        {"label": _("Liefermenge"), "fieldname": "qty_to_deliver", "fieldtype": "Data", "width": 100, "convertible": "qty"},
+        {"label": _("Available Qty"), "fieldname": "available_qty", "fieldtype": "Data", "width": 100},
+        {"label": "", "fieldname": "blank", "fieldtype": "Data", "width": 20}
     ]
     
 def get_data(filters):
@@ -67,4 +68,12 @@ def get_data(filters):
 
     data = frappe.db.sql(sql_query, as_dict=1)
 
+    for d in data:
+        if d['qty_to_deliver'] > d['available_qty']:
+            d['qty_to_deliver'] = "<span style=\"color: red; \">{0:.2f}</span>".format(d['qty_to_deliver'])
+        else:
+            d['qty_to_deliver'] = "{0:.2f}".format(d['qty_to_deliver'])
+        
+        d['available_qty'] = "{0:.2f}".format(d['available_qty'])
+        
     return data
