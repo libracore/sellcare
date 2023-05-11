@@ -236,7 +236,7 @@ def get_cogs(sales_order=None, item_code=None, delivery_note_item=None):
                 `tabStock Ledger Entry`.`voucher_detail_no` = "{dn_detail}"
             ;
         """.format(dn_detail=delivery_note_item)
-    else:
+    elif sales_order:
         sql_query = """
             SELECT IFNULL(AVG(`tabStock Ledger Entry`.`valuation_rate`), 0) AS `valuation_rate`
             FROM `tabDelivery Note Item` 
@@ -246,6 +246,9 @@ def get_cogs(sales_order=None, item_code=None, delivery_note_item=None):
                 AND `tabDelivery Note Item`.`against_sales_order` = "{sales_order}"
             ;
         """.format(item_code=item_code, sales_order=sales_order)
+        
+    else:
+        sql_query = ""
     data = frappe.db.sql(sql_query, as_dict=True)
     cogs = data[0]['valuation_rate']
     if not cogs:
@@ -292,12 +295,16 @@ def store_cogs(sinv, debug=False):
     for i in doc.items:
         if i.dn_detail:
             cogs = get_cogs(delivery_note_item=i.dn_detail)
-            if debug:
-                print("{0}#{1}: rate: {2}, last_purchase: {3}, cogs: {4}".format(doc.name, i.item_code,
-                    i.rate, i.last_purchase_rate, cogs))
-            frappe.db.sql("""UPDATE `tabSales Invoice Item`
-                             SET `cogs_rate` = {cogs}
-                             WHERE `name` = "{name}";""".format(cogs=cogs, name=i.name))
+        elif i.sales_order:
+            cogs = get_cogs(sales_order=i.sales_order, item_code=i.item_code)
+        else:
+            cogs = get_cogs(item_code=i.item_code)
+        if debug:
+            print("{0}#{1}: rate: {2}, last_purchase: {3}, cogs: {4}".format(doc.name, i.item_code,
+                i.rate, i.last_purchase_rate, cogs))
+        frappe.db.sql("""UPDATE `tabSales Invoice Item`
+                         SET `cogs_rate` = {cogs}
+                         WHERE `name` = "{name}";""".format(cogs=cogs, name=i.name))
     frappe.db.commit()
 
 """
