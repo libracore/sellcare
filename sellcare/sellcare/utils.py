@@ -302,9 +302,12 @@ def store_cogs(sinv, debug=False):
         if debug:
             print("{0}#{1}: rate: {2}, last_purchase: {3}, cogs: {4}".format(doc.name, i.item_code,
                 i.rate, i.last_purchase_rate, cogs))
-        frappe.db.sql("""UPDATE `tabSales Invoice Item`
+        try:
+            frappe.db.sql("""UPDATE `tabSales Invoice Item`
                          SET `cogs_rate` = {cogs}
                          WHERE `name` = "{name}";""".format(cogs=cogs, name=i.name))
+        except Exception as err:
+            frappe.log_error( err, "Store COGS failed: {0}".format(sinv))
     frappe.db.commit()
 
 """
