@@ -1,9 +1,10 @@
-# Copyright (c) 2019-2020, libracore and contributors
+# Copyright (c) 2019-2023, libracore and contributors
 # For license information, please see license.txt
 
 from __future__ import unicode_literals
 import frappe
 from frappe import _
+from frappe.utils import flt
 
 def execute(filters=None):
     filters = frappe._dict(filters or {})
@@ -69,11 +70,11 @@ def get_data(filters):
     data = frappe.db.sql(sql_query, as_dict=1)
 
     for d in data:
-        if d['qty_to_deliver'] > d['available_qty']:
-            d['qty_to_deliver'] = "<span style=\"color: red; \">{0:.2f}</span>".format(d['qty_to_deliver'])
+        if flt(d['qty_to_deliver']) > flt(d['available_qty']):
+            d['qty_to_deliver'] = "<span style=\"color: red; \">{0:.2f}</span>".format(flt(d['qty_to_deliver']))
         else:
-            d['qty_to_deliver'] = "{0:.2f}".format(d['qty_to_deliver'])
+            d['qty_to_deliver'] = "{0:.2f}".format(flt(d['qty_to_deliver']))
         
-        d['available_qty'] = "{0:.2f}".format(d['available_qty'])
+        d['available_qty'] = "{0:.2f}".format(flt(d['available_qty']))
         
     return data
