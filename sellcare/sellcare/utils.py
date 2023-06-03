@@ -243,10 +243,9 @@ def get_cogs(sales_order=None, item_code=None, delivery_note_item=None):
         sql_query = """
             SELECT IFNULL(AVG(`tabStock Ledger Entry`.`valuation_rate`), 0) AS `valuation_rate`
             FROM `tabDelivery Note Item` 
-            LEFT JOIN `tabStock Ledger Entry` ON `tabStock Ledger Entry`.`voucher_detail_no` = `tabDelivery Note Item`.`name`
+            LEFT JOIN `tabStock Ledger Entry` ON `tabStock Ledger Entry`.`batch_no` = `tabDelivery Note Item`.`batch_no`
             WHERE
-                `tabStock Ledger Entry`.`batch_no` = (SELECT `batch_no` FROM `tabDelivery Note Item` WHERE `name` = `tabDelivery Note Item`.`name`)
-                AND `tabStock Ledger Entry`.`actual_qty` > 0
+                `tabStock Ledger Entry`.`actual_qty` > 0
                 AND `tabDelivery Note Item`.`item_code` = "{item_code}"
                 AND `tabDelivery Note Item`.`against_sales_order` = "{sales_order}"
             ;
