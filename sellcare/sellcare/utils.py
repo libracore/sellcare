@@ -229,20 +229,25 @@ This function will compute the CoGS based on a delivery note item or sales order
 """
 def get_cogs(sales_order=None, item_code=None, delivery_note_item=None):
     if delivery_note_item:
+	# find batch from delivery note, look up all incoming rates and find average rate
         sql_query = """
             SELECT IFNULL(AVG(`tabStock Ledger Entry`.`valuation_rate`), 0) AS `valuation_rate`
             FROM `tabStock Ledger Entry`
             WHERE
-                `tabStock Ledger Entry`.`voucher_detail_no` = "{dn_detail}"
+                `tabStock Ledger Entry`.`batch_no` = (SELECT `batch_no` FROM `tabDelivery Note Item` WHERE `name` = "{dn_detail}")
+                AND `tabStock Ledger Entry`.`actual_qty` > 0
             ;
         """.format(dn_detail=delivery_note_item)
     elif sales_order:
+	# map delivery note from sales order
         sql_query = """
             SELECT IFNULL(AVG(`tabStock Ledger Entry`.`valuation_rate`), 0) AS `valuation_rate`
             FROM `tabDelivery Note Item` 
             LEFT JOIN `tabStock Ledger Entry` ON `tabStock Ledger Entry`.`voucher_detail_no` = `tabDelivery Note Item`.`name`
             WHERE
-                `tabDelivery Note Item`.`item_code` = "{item_code}"
+                `tabStock Ledger Entry`.`batch_no` = (SELECT `batch_no` FROM `tabDelivery Note Item` WHERE `name` = `tabDelivery Note Item`.`name`)
+                AND `tabStock Ledger Entry`.`actual_qty` > 0
+                AND `tabDelivery Note Item`.`item_code` = "{item_code}"
                 AND `tabDelivery Note Item`.`against_sales_order` = "{sales_order}"
             ;
         """.format(item_code=item_code, sales_order=sales_order)
