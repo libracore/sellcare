@@ -252,9 +252,12 @@ def get_cogs(sales_order=None, item_code=None, delivery_note_item=None):
         """.format(item_code=item_code, sales_order=sales_order)
         
     else:
-        sql_query = ""
-    data = frappe.db.sql(sql_query, as_dict=True)
-    cogs = data[0]['valuation_rate']
+        sql_query = None
+    if sql_query:
+        data = frappe.db.sql(sql_query, as_dict=True)
+        cogs = data[0]['valuation_rate']
+    else:
+        cogs = None
     if not cogs:
         # fallback to last purchase rate
         cogs = frappe.get_value("Item", item_code, "last_purchase_rate")
@@ -272,8 +275,11 @@ def test_validate_cogs():
         doc = frappe.get_doc("Sales Invoice", sinv['name'])
         for i in doc.items:
             if i.sales_order:
-                #cogs = get_cogs(sales_order=i.sales_order, item_code=i.item_code)
-                cogs = get_cogs(delivery_note_item=i.dn_detail)
+                if i.dn_detail:
+                    cogs = get_cogs(delivery_note_item=i.dn_detail)
+                else:
+                    cogs = get_cogs(sales_order=i.sales_order, item_code=i.item_code)
+                
                 print("{0}#{1}: rate: {2}, last_purchase: {3}, cogs: {4}".format(doc.name, i.item_code,
                     i.rate, i.last_purchase_rate, cogs))
     return
