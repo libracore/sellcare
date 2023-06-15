@@ -231,7 +231,7 @@ def get_cogs(sales_order=None, item_code=None, delivery_note_item=None):
     if delivery_note_item:
 	# find batch from delivery note, look up all incoming rates and find average rate
         sql_query = """
-            SELECT IFNULL(AVG(`tabStock Ledger Entry`.`valuation_rate`), 0) AS `valuation_rate`
+            SELECT IFNULL(AVG(`tabStock Ledger Entry`.`incoming_rate`), 0) AS `valuation_rate`
             FROM `tabStock Ledger Entry`
             WHERE
                 `tabStock Ledger Entry`.`batch_no` = (SELECT `batch_no` FROM `tabDelivery Note Item` WHERE `name` = "{dn_detail}")
@@ -241,7 +241,7 @@ def get_cogs(sales_order=None, item_code=None, delivery_note_item=None):
     elif sales_order:
 	# map delivery note from sales order
         sql_query = """
-            SELECT IFNULL(AVG(`tabStock Ledger Entry`.`valuation_rate`), 0) AS `valuation_rate`
+            SELECT IFNULL(AVG(`tabStock Ledger Entry`.`incoming_rate`), 0) AS `valuation_rate`
             FROM `tabDelivery Note Item` 
             LEFT JOIN `tabStock Ledger Entry` ON `tabStock Ledger Entry`.`batch_no` = `tabDelivery Note Item`.`batch_no`
             WHERE
