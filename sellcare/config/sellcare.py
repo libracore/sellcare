@@ -220,5 +220,17 @@ def get_data():
                         "is_query_report": True
                    }
             ]
-        }        
+        },
+        {
+            "label": _("Settings"),
+            "icon": "octicon octicon-organization",
+            "items": [
+                   {
+                       "type": "doctype",
+                       "name": "Customer Representative",
+                       "label": _("Customer Representative"),
+                       "description": _("Customer Representative")
+                   },
+            ]
+        }
 ]
